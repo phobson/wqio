@@ -1,4 +1,7 @@
-.. include:: ../readme.rst
+.. toctree::
+   :maxdepth: 3
+
+   include_readme.rst
 
 API and Source Reference
 ========================
