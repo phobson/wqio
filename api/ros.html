@@ -1,0 +1,372 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Regression on Order Statistics (ROS) API &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../index.html"/>
+        <link rel="up" title="Statisical APIs" href="../api.html"/>
+        <link rel="next" title="Hydrologic functions API" href="hydro.html"/>
+        <link rel="prev" title="Statistic bootstrapping API" href="bootstrap.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Statisical APIs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="bootstrap.html">Statistic bootstrapping API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Regression on Order Statistics (ROS) API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api.html">Statisical APIs</a> &raquo;</li>
+      
+    <li>Regression on Order Statistics (ROS) API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/ros.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-wqio.ros">
+<span id="regression-on-order-statistics-ros-api"></span><span id="ros-auto"></span><h1>Regression on Order Statistics (ROS) API<a class="headerlink" href="#module-wqio.ros" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="wqio.ros.cohn_numbers">
+<code class="descclassname">wqio.ros.</code><code class="descname">cohn_numbers</code><span class="sig-paren">(</span><em>df</em>, <em>result</em>, <em>censorship</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/ros.html#cohn_numbers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.ros.cohn_numbers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the Cohn numbers for the detection limits in the dataset.</p>
+<p>The Cohn Numbers are:</p>
+<blockquote>
+<div><ul class="simple">
+<li><span class="math">\(A_j =\)</span> the number of uncensored obs above the jth
+threshold.</li>
+<li><span class="math">\(B_j =\)</span> the number of observations (cen &amp; uncen) below
+the jth threshold.</li>
+<li><span class="math">\(C_j =\)</span> the number of censored observations at the jth
+threshold.</li>
+<li><span class="math">\(\mathrm{PE}_j =\)</span> the probability of exceeding the jth
+threshold</li>
+<li><span class="math">\(\mathrm{DL}_j =\)</span> the unique, sorted detection limits</li>
+<li><span class="math">\(\mathrm{DL}_{j+1} = \mathrm{DL}_j\)</span> shifted down a
+single index (row)</li>
+</ul>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe</strong> : pandas.DataFrame</p>
+<p><strong>result</strong> : str</p>
+<blockquote>
+<div><p>Name of the column in the dataframe that contains observed
+values. Censored values should be set to the detection (upper)
+limit.</p>
+</div></blockquote>
+<p><strong>censorship</strong> : str</p>
+<blockquote>
+<div><p>Name of the column in the dataframe that indicates that a
+result is left-censored. (i.e., True -&gt; censored,
+False -&gt; uncensored)</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>cohn</strong> : pandas.DataFrame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wqio.ros.plotting_positions">
+<code class="descclassname">wqio.ros.</code><code class="descname">plotting_positions</code><span class="sig-paren">(</span><em>df</em>, <em>censorship</em>, <em>cohn</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/ros.html#plotting_positions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.ros.plotting_positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the ROS plotting positions for results based on their rank,
+censorship, detection limit index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>df</strong> : pandas.DataFrame.</p>
+<p><strong>censorship</strong> : str</p>
+<blockquote>
+<div><p>Name of the column in the dataframe that indicates that a
+result is left-censored. (i.e., True -&gt; censored,
+False -&gt; uncensored)</p>
+</div></blockquote>
+<p><strong>cohn</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Dataframe of Cohn numbers.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>plotting_position</strong> : array of float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#wqio.ros.cohn_numbers" title="wqio.ros.cohn_numbers"><code class="xref py py-obj docutils literal"><span class="pre">cohn_numbers</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="wqio.ros.ROS">
+<code class="descclassname">wqio.ros.</code><code class="descname">ROS</code><span class="sig-paren">(</span><em>result</em>, <em>censorship</em>, <em>df=None</em>, <em>min_uncensored=2</em>, <em>max_fraction_censored=0.8</em>, <em>substitution_fraction=0.5</em>, <em>transform_in=&lt;ufunc 'log'&gt;</em>, <em>transform_out=&lt;ufunc 'exp'&gt;</em>, <em>as_array=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/ros.html#ROS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.ros.ROS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Impute censored dataset using Regression on Order Statistics (ROS)
+or simple substitution if insufficient uncensored data exists.</p>
+<p>Method described in <em>Nondetects and Data Analysis</em> by Dennis R.
+Helsel (John Wiley, 2005) to estimate the left-censored (non-detect)
+values of a dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>result</strong> : str or array-like</p>
+<blockquote>
+<div><p>Label of the column or the float array of censored results</p>
+</div></blockquote>
+<p><strong>censorship</strong> : str</p>
+<blockquote>
+<div><p>Label of the column or the bool array of the censorship
+status of the results.</p>
+<blockquote>
+<div><ul class="simple">
+<li>True if censored,</li>
+<li>False if uncensored</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p><strong>df</strong> : pandas.DataFrame, optional</p>
+<blockquote>
+<div><p>If <cite>result</cite> and <cite>censorship</cite> are labels, this is the DataFrame
+that contains those columns.</p>
+</div></blockquote>
+<p><strong>min_uncensored</strong> : int (default is 2)</p>
+<blockquote>
+<div><p>The minimum number of uncensored values required before ROS
+can be used to impute the censored results. When this criterion
+is not met, simple substituion is used instead.</p>
+</div></blockquote>
+<p><strong>max_fraction_censored</strong> : float (default is 0.8)</p>
+<blockquote>
+<div><p>The maximum fraction of censored data below which ROS can be
+used to impute the censored results. When this fraction is
+exceeded, simple substituion is used instead.</p>
+</div></blockquote>
+<p><strong>substitution_fraction</strong> : float (default is 0.5)</p>
+<blockquote>
+<div><p>The fraction of the detection limit to be used during simple
+substitution of the censored values.</p>
+</div></blockquote>
+<p><strong>transform_in</strong> : callable (default is numpy.log)</p>
+<blockquote>
+<div><p>Transformation to be applied to the values prior to fitting a
+line to the plotting positions vs. uncensored values.</p>
+</div></blockquote>
+<p><strong>transform_out</strong> : callable (default is numpy.exp)</p>
+<blockquote>
+<div><p>Transformation to be applied to the imputed censored values
+estimated from the previously computed best-fit line.</p>
+</div></blockquote>
+<p><strong>as_array</strong> : bool (default is True)</p>
+<blockquote>
+<div><p>When True, a numpy array of the imputed results is returned.
+Otherwise, a modified copy of the original dataframe with all
+of the intermediate calculations is returned.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>imputed</strong> : numpy.array (default) or pandas.DataFrame</p>
+<blockquote class="last">
+<div><p>The final results where the censored values have either been
+imputed through ROS or substituted as a fraction of the
+detection limit.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hydro.html" class="btn btn-neutral float-right" title="Hydrologic functions API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="bootstrap.html" class="btn btn-neutral" title="Statistic bootstrapping API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

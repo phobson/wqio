@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Statistic bootstrapping API &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../index.html"/>
+        <link rel="up" title="Statisical APIs" href="../api.html"/>
+        <link rel="next" title="Regression on Order Statistics (ROS) API" href="ros.html"/>
+        <link rel="prev" title="Statisical APIs" href="../api.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Statisical APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Statistic bootstrapping API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ros.html">Regression on Order Statistics (ROS) API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api.html">Statisical APIs</a> &raquo;</li>
+      
+    <li>Statistic bootstrapping API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/bootstrap.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-wqio.bootstrap">
+<span id="statistic-bootstrapping-api"></span><span id="bootstrap-auto"></span><h1>Statistic bootstrapping API<a class="headerlink" href="#module-wqio.bootstrap" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="wqio.bootstrap.BCA">
+<code class="descclassname">wqio.bootstrap.</code><code class="descname">BCA</code><span class="sig-paren">(</span><em>data</em>, <em>statfxn</em>, <em>niter=5000</em>, <em>alpha=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/bootstrap.html#BCA"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.bootstrap.BCA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates confidence intervals around a statistic using the
+Bias-Corrected and Accelerated method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : array-like</p>
+<blockquote>
+<div><p>Input sequence of values</p>
+</div></blockquote>
+<p><strong>statfxn</strong> : callable</p>
+<blockquote>
+<div><p>A reducing function that returns a single value when passed
+<code class="docutils literal"><span class="pre">data</span></code>.</p>
+</div></blockquote>
+<p><strong>niter</strong> : int (5000)</p>
+<blockquote>
+<div><p>The number of iterations for which the data will be resampled
+and the statistic recomputed.</p>
+</div></blockquote>
+<p><strong>alpha</strong> : float (0.05)</p>
+<blockquote>
+<div><p>The desired confidence interval subtracted from 1. For example,
+if you want the 95% CI, use <code class="docutils literal"><span class="pre">alpha</span> <span class="pre">=</span> <span class="pre">0.05</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : float</p>
+<blockquote>
+<div><p>Refined(?) estimate of the statistic.</p>
+</div></blockquote>
+<p><strong>CI</strong> : numpy array</p>
+<blockquote class="last">
+<div><p>Confidence intervals of statistic.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">wqio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># generate fake data and bootstrap it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">37</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wqio</span><span class="o">.</span><span class="n">bootstrap</span><span class="o">.</span><span class="n">BCA</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="go">(2.5670448684791953, array([ 1.89528037,  3.16395883]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="wqio.bootstrap.percentile">
+<code class="descclassname">wqio.bootstrap.</code><code class="descname">percentile</code><span class="sig-paren">(</span><em>data</em>, <em>statfxn</em>, <em>niter</em>, <em>alpha=0.05</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/bootstrap.html#percentile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.bootstrap.percentile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates confidence intervals around a statistic using the
+percentile method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>data</strong> : array-like</p>
+<blockquote>
+<div><p>Input sequence of values</p>
+</div></blockquote>
+<p><strong>statfxn</strong> : callable</p>
+<blockquote>
+<div><p>A reducing function that returns a single value when passed
+<code class="docutils literal"><span class="pre">data</span></code>.</p>
+</div></blockquote>
+<p><strong>niter</strong> : int (5000)</p>
+<blockquote>
+<div><p>The number of iterations for which the data will be resampled
+and the statistic recomputed.</p>
+</div></blockquote>
+<p><strong>alpha</strong> : float (0.05)</p>
+<blockquote>
+<div><p>The desired confidence interval subtracted from 1. For example,
+if you want the 95% CI, use <code class="docutils literal"><span class="pre">alpha</span> <span class="pre">=</span> <span class="pre">0.05</span></code>.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> : float</p>
+<blockquote>
+<div><p>Refined(?) estimate of the statistic.</p>
+</div></blockquote>
+<p><strong>CI</strong> : numpy array</p>
+<blockquote class="last">
+<div><p>Confidence intervals of statistic.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Examples</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">wqio</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># generate fake data and bootstrap it</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mf">1.75</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">37</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wqio</span><span class="o">.</span><span class="n">bootstrap</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">numpy</span><span class="o">.</span><span class="n">median</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+<span class="go">(2.583930072904967, array([ 2.20960993,  3.33181602]))</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ros.html" class="btn btn-neutral float-right" title="Regression on Order Statistics (ROS) API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../api.html" class="btn btn-neutral" title="Statisical APIs" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

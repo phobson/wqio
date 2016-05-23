@@ -1,0 +1,730 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wqio.ros &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Statisical APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>wqio.ros</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for wqio.ros</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span><span class="p">,</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">wqio.utils</span> <span class="kn">import</span> <span class="n">figutils</span>
+
+
+<span class="k">def</span> <span class="nf">_ros_sort</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function prepares a dataframe for ROS. It sorts ascending with</span>
+<span class="sd">    left-censored observations on top. Censored results larger than the</span>
+<span class="sd">    maximum uncensored results are removed from the dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    result : str</span>
+<span class="sd">        Name of the column in the dataframe that contains observed</span>
+<span class="sd">        values. Censored values should be set to the detection (upper)</span>
+<span class="sd">        limit.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    ------</span>
+<span class="sd">    sorted_df : pandas.DataFrame</span>
+<span class="sd">        The sorted dataframe with all columns dropped except the</span>
+<span class="sd">        result and censorship columns.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># separate uncensored data from censored data</span>
+    <span class="n">censored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+    <span class="n">uncensored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">censored</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">uncensored</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+        <span class="n">censored</span> <span class="o">=</span> <span class="n">censored</span><span class="p">[</span><span class="n">censored</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">uncensored</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Dropping censored results greater than &quot;</span>
+            <span class="s2">&quot;the max uncensored result.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">censored</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">uncensored</span><span class="p">)[[</span><span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="cohn_numbers"><a class="viewcode-back" href="../../api/ros.html#wqio.ros.cohn_numbers">[docs]</a><span class="k">def</span> <span class="nf">cohn_numbers</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes the Cohn numbers for the detection limits in the dataset.</span>
+
+<span class="sd">    The Cohn Numbers are:</span>
+
+<span class="sd">        - :math:`A_j =` the number of uncensored obs above the jth</span>
+<span class="sd">          threshold.</span>
+<span class="sd">        - :math:`B_j =` the number of observations (cen &amp; uncen) below</span>
+<span class="sd">          the jth threshold.</span>
+<span class="sd">        - :math:`C_j =` the number of censored observations at the jth</span>
+<span class="sd">          threshold.</span>
+<span class="sd">        - :math:`\mathrm{PE}_j =` the probability of exceeding the jth</span>
+<span class="sd">          threshold</span>
+<span class="sd">        - :math:`\mathrm{DL}_j =` the unique, sorted detection limits</span>
+<span class="sd">        - :math:`\mathrm{DL}_{j+1} = \mathrm{DL}_j` shifted down a</span>
+<span class="sd">          single index (row)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataframe : pandas.DataFrame</span>
+<span class="sd">    result : str</span>
+<span class="sd">        Name of the column in the dataframe that contains observed</span>
+<span class="sd">        values. Censored values should be set to the detection (upper)</span>
+<span class="sd">        limit.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cohn : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">nuncen_above</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A, the number of uncensored obs above the given threshold.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># index of results above the lower_dl DL</span>
+        <span class="n">above</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">]</span>
+
+        <span class="c1"># index of results below the upper_dl DL</span>
+        <span class="n">below</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;upper_dl&#39;</span><span class="p">]</span>
+
+        <span class="c1"># index of non-detect results</span>
+        <span class="n">detect</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span> <span class="o">==</span> <span class="bp">False</span>
+
+        <span class="c1"># return the number of results where all conditions are True</span>
+        <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">above</span> <span class="o">&amp;</span> <span class="n">below</span> <span class="o">&amp;</span> <span class="n">detect</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">nobs_below</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; B, the number of observations (cen &amp; uncen) below the given</span>
+<span class="sd">        threshold</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># index of data less than the lower_dl DL</span>
+        <span class="n">less_than</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">]</span>
+
+        <span class="c1"># index of data less than or equal to the lower_dl DL</span>
+        <span class="n">less_thanequal</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">]</span>
+
+        <span class="c1"># index of detects, non-detects</span>
+        <span class="n">uncensored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span> <span class="o">==</span> <span class="bp">False</span>
+        <span class="n">censored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span> <span class="o">==</span> <span class="bp">True</span>
+
+        <span class="c1"># number results less than or equal to lower_dl DL and non-detect</span>
+        <span class="n">LTE_censored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">less_thanequal</span> <span class="o">&amp;</span> <span class="n">censored</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># number of results less than lower_dl DL and detected</span>
+        <span class="n">LT_uncensored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">less_than</span> <span class="o">&amp;</span> <span class="n">uncensored</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># return the sum</span>
+        <span class="k">return</span> <span class="n">LTE_censored</span> <span class="o">+</span> <span class="n">LT_uncensored</span>
+
+    <span class="k">def</span> <span class="nf">ncen_equal</span><span class="p">(</span><span class="n">row</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; C, the number of censored observations at the given</span>
+<span class="sd">        threshold.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">censored_index</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span>
+        <span class="n">censored_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">][</span><span class="n">censored_index</span><span class="p">]</span>
+        <span class="n">censored_below</span> <span class="o">=</span> <span class="n">censored_data</span> <span class="o">==</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">censored_below</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">set_upper_limit</span><span class="p">(</span><span class="n">cohn</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Sets the upper_dl DL for each row of the Cohn dataframe. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cohn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">cohn</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">numpy</span><span class="o">.</span><span class="n">inf</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">compute_PE</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Computes the probability of excedance for each row of the</span>
+<span class="sd">        Cohn dataframe. &quot;&quot;&quot;</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+        <span class="n">PE</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="n">PE</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">PE</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">PE</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">PE</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">A</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">B</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">PE</span>
+
+    <span class="c1"># unique, sorted detection limts</span>
+    <span class="n">censored_data</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span>
+    <span class="n">DLs</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">censored_data</span><span class="p">,</span> <span class="n">result</span><span class="p">])</span>
+    <span class="n">DLs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="c1"># if there is a results smaller than the minimum detection limit,</span>
+    <span class="c1"># add that value to the array</span>
+    <span class="k">if</span> <span class="n">DLs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">DLs</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+            <span class="n">DLs</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">DLs</span><span class="p">])</span>
+
+        <span class="c1"># create a dataframe</span>
+        <span class="n">cohn</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">DLs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">])</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">upper_dl</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">set_upper_limit</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">nuncen_above</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">nuncen_above</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">nobs_below</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">nobs_below</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ncen_equal</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">ncen_equal</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">DLs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">prob_exceedance</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">compute_PE</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;nuncen_above&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;nobs_below&#39;</span><span class="p">]))</span>
+        <span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dl_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">,</span> <span class="s1">&#39;upper_dl&#39;</span><span class="p">,</span> <span class="s1">&#39;nuncen_above&#39;</span><span class="p">,</span>
+                   <span class="s1">&#39;nobs_below&#39;</span><span class="p">,</span> <span class="s1">&#39;ncen_equal&#39;</span><span class="p">,</span> <span class="s1">&#39;prob_exceedance&#39;</span><span class="p">]</span>
+        <span class="n">cohn</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dl_cols</span><span class="p">))),</span> <span class="n">columns</span><span class="o">=</span><span class="n">dl_cols</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cohn</span></div>
+
+
+<span class="k">def</span> <span class="nf">_detection_limit_index</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">cohn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Helper function to create an array of indices for the detection</span>
+<span class="sd">    limits (cohn) corresponding to each data point.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    res : float</span>
+<span class="sd">        A single observed result from the larger dataset.</span>
+<span class="sd">    cohn : pandas.DataFrame</span>
+<span class="sd">        Dataframe of Cohn numbers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    det_limit_index : int</span>
+<span class="sd">        The index of the corresponding detection limit in `cohn`</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    cohn_numbers</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">cohn</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">index</span><span class="p">,</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">cohn</span><span class="p">[</span><span class="s1">&#39;lower_dl&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">res</span><span class="p">)</span>
+        <span class="n">det_limit_index</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">det_limit_index</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">det_limit_index</span>
+
+
+<span class="k">def</span> <span class="nf">_ros_group_rank</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">dl_idx</span><span class="p">,</span> <span class="n">censorship</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Ranks each result within the groups defined by the record&#39;s</span>
+<span class="sd">    detection limit index and censorship.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    dl_idx : str</span>
+<span class="sd">        Name of the column in the dataframe the index of the result&#39;s</span>
+<span class="sd">        corresponding detection limit in the `cohn` dataframe.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ranks : numpy.array</span>
+<span class="sd">        Array of ranks for the dataset.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ranks</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="n">dl_idx</span><span class="p">,</span> <span class="n">censorship</span><span class="p">])[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span>
+          <span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">cumsum</span><span class="p">())</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ranks</span>
+
+
+<span class="k">def</span> <span class="nf">_ros_plot_pos</span><span class="p">(</span><span class="n">row</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">cohn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the ROS plotting position for a result based on its rank,</span>
+<span class="sd">    censorship, detection limit index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    row : pandas.Series or dict-like</span>
+<span class="sd">        Full observation (row) from a censored dataset. Requires a</span>
+<span class="sd">        &#39;rank&#39;, &#39;detection_limit&#39;, and `censorship` column.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+<span class="sd">    cohn : pandas.DataFrame</span>
+<span class="sd">        Dataframe of Cohn numbers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plotting_position : float</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    cohn_numbers</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">DL_index</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;det_limit_index&#39;</span><span class="p">]</span>
+    <span class="n">rank</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;rank&#39;</span><span class="p">]</span>
+    <span class="n">censored</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span>
+
+    <span class="n">dl_1</span> <span class="o">=</span> <span class="n">cohn</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">DL_index</span><span class="p">]</span>
+    <span class="n">dl_2</span> <span class="o">=</span> <span class="n">cohn</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">DL_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">censored</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dl_1</span><span class="p">[</span><span class="s1">&#39;prob_exceedance&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">rank</span> <span class="o">/</span> <span class="p">(</span><span class="n">dl_1</span><span class="p">[</span><span class="s1">&#39;ncen_equal&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">dl_1</span><span class="p">[</span><span class="s1">&#39;prob_exceedance&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span><span class="n">dl_1</span><span class="p">[</span><span class="s1">&#39;prob_exceedance&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">dl_2</span><span class="p">[</span><span class="s1">&#39;prob_exceedance&#39;</span><span class="p">])</span> <span class="o">*</span> \
+                <span class="n">rank</span> <span class="o">/</span> <span class="p">(</span><span class="n">dl_1</span><span class="p">[</span><span class="s1">&#39;nuncen_above&#39;</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_norm_plot_pos</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes standard normal (Gaussian) plotting positions using scipy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    results : array-like</span>
+<span class="sd">        Sequence of observed quantities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plotting_position : array of floats</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ppos</span><span class="p">,</span> <span class="n">sorted_res</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">probplot</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">fit</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">ppos</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="plotting_positions"><a class="viewcode-back" href="../../api/ros.html#wqio.ros.plotting_positions">[docs]</a><span class="k">def</span> <span class="nf">plotting_positions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">cohn</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the ROS plotting positions for results based on their rank,</span>
+<span class="sd">    censorship, detection limit index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+<span class="sd">    cohn : pandas.DataFrame</span>
+<span class="sd">        Dataframe of Cohn numbers.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    plotting_position : array of float</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    cohn_numbers</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">plot_pos</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">r</span><span class="p">:</span> <span class="n">_ros_plot_pos</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">cohn</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># correctly sort the plotting positions of the ND data:</span>
+    <span class="n">ND_plotpos</span> <span class="o">=</span> <span class="n">plot_pos</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]]</span>
+    <span class="n">ND_plotpos</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">plot_pos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]]</span> <span class="o">=</span> <span class="n">ND_plotpos</span>
+
+    <span class="k">return</span> <span class="n">plot_pos</span></div>
+
+
+<span class="k">def</span> <span class="nf">_ros_estimate</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">transform_in</span><span class="p">,</span> <span class="n">transform_out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Computed the estimated censored from the best-fit line of a</span>
+<span class="sd">    probability plot of the uncensored values.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    result : str</span>
+<span class="sd">        Name of the column in the dataframe that contains observed</span>
+<span class="sd">        values. Censored values should be set to the detection (upper)</span>
+<span class="sd">        limit.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+<span class="sd">    transform_in, transform_out : callable</span>
+<span class="sd">        Transformations to be applied to the data prior to fitting</span>
+<span class="sd">        the line and after estimated values from that line. Typically,</span>
+<span class="sd">        `numpy.log` and `numpy.exp` are used, respectively.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    estimated : pandas.DataFrame</span>
+<span class="sd">        A new dataframe with two new columns: &quot;estimated&quot; and &quot;final&quot;.</span>
+<span class="sd">        The &quot;estimated&quot; column contains of the values inferred from the</span>
+<span class="sd">        best-fit line. The &quot;final&quot; column contains the estimated values</span>
+<span class="sd">        only where the original results were censored, and the original</span>
+<span class="sd">        results everwhere else.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># detect/non-detect selectors</span>
+    <span class="n">uncensored_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span> <span class="o">==</span> <span class="bp">False</span>
+    <span class="n">censored_mask</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span> <span class="o">==</span> <span class="bp">True</span>
+
+    <span class="c1"># fit a line to the logs of the detected data</span>
+    <span class="n">fit_params</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Zprelim&#39;</span><span class="p">][</span><span class="n">uncensored_mask</span><span class="p">],</span>
+        <span class="n">transform_in</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">][</span><span class="n">uncensored_mask</span><span class="p">])</span>
+    <span class="p">)</span>
+
+    <span class="c1"># pull out the slope and intercept for use later</span>
+    <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">fit_params</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># model the data based on the best-fit curve</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">estimated</span><span class="o">=</span><span class="n">transform_out</span><span class="p">(</span><span class="n">slope</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Zprelim&#39;</span><span class="p">][</span><span class="n">censored_mask</span><span class="p">]</span> <span class="o">+</span> <span class="n">intercept</span><span class="p">))</span>
+          <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">final</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;estimated&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]))</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+
+
+<span class="k">def</span> <span class="nf">_do_ros</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">transform_in</span><span class="p">,</span> <span class="n">transform_out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Prepares a dataframe for, and then esimates the values of a censored</span>
+<span class="sd">    dataset using Regression on Order Statistics</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">    result : str</span>
+<span class="sd">        Name of the column in the dataframe that contains observed</span>
+<span class="sd">        values. Censored values should be set to the detection (upper)</span>
+<span class="sd">        limit.</span>
+<span class="sd">    censorship : str</span>
+<span class="sd">        Name of the column in the dataframe that indicates that a</span>
+<span class="sd">        result is left-censored. (i.e., True -&gt; censored,</span>
+<span class="sd">        False -&gt; uncensored)</span>
+<span class="sd">    transform_in, transform_out : callable</span>
+<span class="sd">        Transformations to be applied to the data prior to fitting</span>
+<span class="sd">        the line and after estimated values from that line. Typically,</span>
+<span class="sd">        `numpy.log` and `numpy.exp` are used, respectively.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    estimated : pandas.DataFrame</span>
+<span class="sd">        A new dataframe with two new columns: &quot;estimated&quot; and &quot;final&quot;.</span>
+<span class="sd">        The &quot;estimated&quot; column contains of the values inferred from the</span>
+<span class="sd">        best-fit line. The &quot;final&quot; column contains the estimated values</span>
+<span class="sd">        only where the original results were censored, and the original</span>
+<span class="sd">        results everwhere else.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># compute the Cohn numbers</span>
+    <span class="n">cohn</span> <span class="o">=</span> <span class="n">cohn_numbers</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="o">=</span><span class="n">censorship</span><span class="p">)</span>
+
+    <span class="n">modeled</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_ros_sort</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="o">=</span><span class="n">censorship</span><span class="p">)</span>
+          <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">det_limit_index</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_detection_limit_index</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">cohn</span><span class="p">,)))</span>
+          <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">rank</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">_ros_group_rank</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;det_limit_index&#39;</span><span class="p">,</span> <span class="n">censorship</span><span class="p">))</span>
+          <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">plot_pos</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">plotting_positions</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">cohn</span><span class="p">))</span>
+          <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">Zprelim</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span> <span class="n">stats</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;plot_pos&#39;</span><span class="p">]))</span>
+          <span class="o">.</span><span class="n">pipe</span><span class="p">(</span><span class="n">_ros_estimate</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">transform_in</span><span class="p">,</span> <span class="n">transform_out</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">modeled</span>
+
+
+<div class="viewcode-block" id="ROS"><a class="viewcode-back" href="../../api/ros.html#wqio.ros.ROS">[docs]</a><span class="k">def</span> <span class="nf">ROS</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">min_uncensored</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">max_fraction_censored</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">substitution_fraction</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">transform_in</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="n">transform_out</span><span class="o">=</span><span class="n">numpy</span><span class="o">.</span><span class="n">exp</span><span class="p">,</span>
+        <span class="n">as_array</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Impute censored dataset using Regression on Order Statistics (ROS)</span>
+<span class="sd">    or simple substitution if insufficient uncensored data exists.</span>
+
+<span class="sd">    Method described in *Nondetects and Data Analysis* by Dennis R.</span>
+<span class="sd">    Helsel (John Wiley, 2005) to estimate the left-censored (non-detect)</span>
+<span class="sd">    values of a dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    result : str or array-like</span>
+<span class="sd">        Label of the column or the float array of censored results</span>
+
+<span class="sd">    censorship : str</span>
+<span class="sd">        Label of the column or the bool array of the censorship</span>
+<span class="sd">        status of the results.</span>
+
+<span class="sd">          * True if censored,</span>
+<span class="sd">          * False if uncensored</span>
+
+<span class="sd">    df : pandas.DataFrame, optional</span>
+<span class="sd">        If `result` and `censorship` are labels, this is the DataFrame</span>
+<span class="sd">        that contains those columns.</span>
+
+<span class="sd">    min_uncensored : int (default is 2)</span>
+<span class="sd">        The minimum number of uncensored values required before ROS</span>
+<span class="sd">        can be used to impute the censored results. When this criterion</span>
+<span class="sd">        is not met, simple substituion is used instead.</span>
+
+<span class="sd">    max_fraction_censored : float (default is 0.8)</span>
+<span class="sd">        The maximum fraction of censored data below which ROS can be</span>
+<span class="sd">        used to impute the censored results. When this fraction is</span>
+<span class="sd">        exceeded, simple substituion is used instead.</span>
+
+<span class="sd">    substitution_fraction : float (default is 0.5)</span>
+<span class="sd">        The fraction of the detection limit to be used during simple</span>
+<span class="sd">        substitution of the censored values.</span>
+
+<span class="sd">    transform_in : callable (default is numpy.log)</span>
+<span class="sd">        Transformation to be applied to the values prior to fitting a</span>
+<span class="sd">        line to the plotting positions vs. uncensored values.</span>
+
+<span class="sd">    transform_out : callable (default is numpy.exp)</span>
+<span class="sd">        Transformation to be applied to the imputed censored values</span>
+<span class="sd">        estimated from the previously computed best-fit line.</span>
+
+<span class="sd">    as_array : bool (default is True)</span>
+<span class="sd">        When True, a numpy array of the imputed results is returned.</span>
+<span class="sd">        Otherwise, a modified copy of the original dataframe with all</span>
+<span class="sd">        of the intermediate calculations is returned.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    imputed : numpy.array (default) or pandas.DataFrame</span>
+<span class="sd">        The final results where the censored values have either been</span>
+<span class="sd">        imputed through ROS or substituted as a fraction of the</span>
+<span class="sd">        detection limit.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># process arrays into a dataframe, if necessary</span>
+    <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;res&#39;</span><span class="p">:</span> <span class="n">result</span><span class="p">,</span> <span class="s1">&#39;cen&#39;</span><span class="p">:</span> <span class="n">censorship</span><span class="p">})</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;res&#39;</span>
+        <span class="n">censorship</span> <span class="o">=</span> <span class="s1">&#39;cen&#39;</span>
+
+    <span class="c1"># basic counts/metrics of the dataset</span>
+    <span class="n">N_observations</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">N_censored</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">N_uncensored</span> <span class="o">=</span> <span class="n">N_observations</span> <span class="o">-</span> <span class="n">N_censored</span>
+    <span class="n">fraction_censored</span> <span class="o">=</span> <span class="n">N_censored</span> <span class="o">/</span> <span class="n">N_observations</span>
+
+    <span class="c1"># add plotting positions if there are no censored values</span>
+    <span class="k">if</span> <span class="n">N_censored</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">final</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">])</span>
+
+    <span class="c1"># substitute w/ fraction of the DLs if there&#39;s insufficient</span>
+    <span class="c1"># uncensored data</span>
+    <span class="k">elif</span> <span class="p">(</span><span class="n">N_uncensored</span> <span class="o">&lt;</span> <span class="n">min_uncensored</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">fraction_censored</span> <span class="o">&gt;</span> <span class="n">max_fraction_censored</span><span class="p">):</span>
+        <span class="n">final</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">censorship</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">]</span> <span class="o">*</span> <span class="n">substitution_fraction</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">result</span><span class="p">])</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">final</span><span class="o">=</span><span class="n">final</span><span class="p">)[[</span><span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="s1">&#39;final&#39;</span><span class="p">]]</span>
+
+    <span class="c1"># normal ROS stuff</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">_do_ros</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">censorship</span><span class="p">,</span> <span class="n">transform_in</span><span class="p">,</span> <span class="n">transform_out</span><span class="p">)</span>
+
+    <span class="c1"># convert to an array if necessary</span>
+    <span class="k">if</span> <span class="n">as_array</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="s1">&#39;final&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

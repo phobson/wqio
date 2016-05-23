@@ -1,0 +1,689 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Hydrologic functions API &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../index.html"/>
+        <link rel="up" title="Statisical APIs" href="../api.html"/>
+        <link rel="next" title="Grab and Composite Sample API" href="samples.html"/>
+        <link rel="prev" title="Regression on Order Statistics (ROS) API" href="ros.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Statisical APIs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Hydrologic functions API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samples.html">Grab and Composite Sample API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">Features API</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api.html">Statisical APIs</a> &raquo;</li>
+      
+    <li>Hydrologic functions API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/hydro.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-wqio.hydro">
+<span id="hydrologic-functions-api"></span><span id="hydro-auto"></span><h1>Hydrologic functions API<a class="headerlink" href="#module-wqio.hydro" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="wqio.hydro.Storm">
+<em class="property">class </em><code class="descclassname">wqio.hydro.</code><code class="descname">Storm</code><span class="sig-paren">(</span><em>dataframe</em>, <em>stormnumber</em>, <em>precipcol='precip'</em>, <em>inflowcol='inflow'</em>, <em>outflowcol='outflow'</em>, <em>tempcol='temp'</em>, <em>stormcol='storm'</em>, <em>freqMinutes=5</em>, <em>volume_conversion=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#Storm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.Storm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Object representing a storm event</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>A datetime-indexed Dataframe containing all of the hydrologic
+data and am interger column indentifying distinct storms.</p>
+</div></blockquote>
+<p><strong>stormnumber</strong> : int</p>
+<blockquote>
+<div><p>The storm we care about.</p>
+</div></blockquote>
+<p><strong>precipcol, inflowcol, outflow, tempcol, stormcol</strong> : string, optional</p>
+<blockquote>
+<div><p>Names for columns representing each hydrologic quantity.</p>
+</div></blockquote>
+<p><strong>freqMinutes</strong> : float (default = 5)</p>
+<blockquote>
+<div><p>The time period, in minutes, between observations.</p>
+</div></blockquote>
+<p><strong>volume_conversion</strong> : float, optional (default = 1)</p>
+<blockquote class="last">
+<div><p>Conversion factor to go from flow to volume for a single
+observation.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.precip">
+<code class="descname">precip</code><a class="headerlink" href="#wqio.hydro.Storm.precip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.inflow">
+<code class="descname">inflow</code><a class="headerlink" href="#wqio.hydro.Storm.inflow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.outflow">
+<code class="descname">outflow</code><a class="headerlink" href="#wqio.hydro.Storm.outflow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.has_precip">
+<code class="descname">has_precip</code><a class="headerlink" href="#wqio.hydro.Storm.has_precip" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.has_inflow">
+<code class="descname">has_inflow</code><a class="headerlink" href="#wqio.hydro.Storm.has_inflow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.has_outflow">
+<code class="descname">has_outflow</code><a class="headerlink" href="#wqio.hydro.Storm.has_outflow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.season">
+<code class="descname">season</code><a class="headerlink" href="#wqio.hydro.Storm.season" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.precip_start">
+<code class="descname">precip_start</code><a class="headerlink" href="#wqio.hydro.Storm.precip_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.precip_end">
+<code class="descname">precip_end</code><a class="headerlink" href="#wqio.hydro.Storm.precip_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.inflow_start">
+<code class="descname">inflow_start</code><a class="headerlink" href="#wqio.hydro.Storm.inflow_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.inflow_end">
+<code class="descname">inflow_end</code><a class="headerlink" href="#wqio.hydro.Storm.inflow_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.outflow_start">
+<code class="descname">outflow_start</code><a class="headerlink" href="#wqio.hydro.Storm.outflow_start" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.outflow_end">
+<code class="descname">outflow_end</code><a class="headerlink" href="#wqio.hydro.Storm.outflow_end" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_precip_intensity">
+<code class="descname">peak_precip_intensity</code><a class="headerlink" href="#wqio.hydro.Storm.peak_precip_intensity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_inflow">
+<code class="descname">peak_inflow</code><a class="headerlink" href="#wqio.hydro.Storm.peak_inflow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_outflow">
+<code class="descname">peak_outflow</code><a class="headerlink" href="#wqio.hydro.Storm.peak_outflow" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.total_precip_depth">
+<code class="descname">total_precip_depth</code><a class="headerlink" href="#wqio.hydro.Storm.total_precip_depth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.total_inflow_volume">
+<code class="descname">total_inflow_volume</code><a class="headerlink" href="#wqio.hydro.Storm.total_inflow_volume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.total_outflow_volume">
+<code class="descname">total_outflow_volume</code><a class="headerlink" href="#wqio.hydro.Storm.total_outflow_volume" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.centroid_precip_time">
+<code class="descname">centroid_precip_time</code><a class="headerlink" href="#wqio.hydro.Storm.centroid_precip_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.centroid_inflow_time">
+<code class="descname">centroid_inflow_time</code><a class="headerlink" href="#wqio.hydro.Storm.centroid_inflow_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.centroid_outflow_time">
+<code class="descname">centroid_outflow_time</code><a class="headerlink" href="#wqio.hydro.Storm.centroid_outflow_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.centroid_lag_hours">
+<code class="descname">centroid_lag_hours</code><a class="headerlink" href="#wqio.hydro.Storm.centroid_lag_hours" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_precip_intensity_time">
+<code class="descname">peak_precip_intensity_time</code><a class="headerlink" href="#wqio.hydro.Storm.peak_precip_intensity_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_inflow_time">
+<code class="descname">peak_inflow_time</code><a class="headerlink" href="#wqio.hydro.Storm.peak_inflow_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_outflow_time">
+<code class="descname">peak_outflow_time</code><a class="headerlink" href="#wqio.hydro.Storm.peak_outflow_time" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.peak_lag_hours">
+<code class="descname">peak_lag_hours</code><a class="headerlink" href="#wqio.hydro.Storm.peak_lag_hours" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.Storm.summary_dict">
+<code class="descname">summary_dict</code><a class="headerlink" href="#wqio.hydro.Storm.summary_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.hydro.Storm.is_small">
+<code class="descname">is_small</code><span class="sig-paren">(</span><em>minprecip=0.0</em>, <em>mininflow=0.0</em>, <em>minoutflow=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#Storm.is_small"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.Storm.is_small" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines whether a storm can be considered &#8220;small&#8221;.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>minprecip, mininflow, minoutflow</strong> : float, optional (default = 0)</p>
+<blockquote>
+<div><p>The minimum amount of each hydrologic quantity below which a
+storm can be considered &#8220;small&#8221;.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>storm_is_small</strong> : bool</p>
+<blockquote class="last">
+<div><p>True if the storm is considered small.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.hydro.Storm.plot_hydroquantity">
+<code class="descname">plot_hydroquantity</code><span class="sig-paren">(</span><em>quantity</em>, <em>ax=None</em>, <em>label=None</em>, <em>otherlabels=None</em>, <em>artists=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#Storm.plot_hydroquantity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.Storm.plot_hydroquantity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a hydrologic quantity to a matplotlib axes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>quantity</strong> : string</p>
+<blockquote>
+<div><p>Column name of the quantity you want to plot.</p>
+</div></blockquote>
+<p><strong>ax</strong> : matplotlib axes object, optional</p>
+<blockquote>
+<div><p>The axes on which the data will be plotted. If None, a new
+one will be created.</p>
+</div></blockquote>
+<p><strong>label</strong> : string, optional</p>
+<blockquote>
+<div><p>How the series should be labeled in the figure legend.</p>
+</div></blockquote>
+<p><strong>otherlabels</strong> : list of strings, optional</p>
+<blockquote>
+<div><p>A list of other legend labels that have already been plotted
+to <code class="docutils literal"><span class="pre">ax</span></code>. If provided, <code class="docutils literal"><span class="pre">label</span></code> will be appended. If not
+provided, and new list will be created.</p>
+</div></blockquote>
+<p><strong>artists</strong> : list of matplotlib artists, optional</p>
+<blockquote>
+<div><p>A list of other legend items that have already been plotted
+to <code class="docutils literal"><span class="pre">ax</span></code>. If provided, the artist created will be appended.
+If not provided, and new list will be created.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>fig</strong> : matplotlib.Figure</p>
+<blockquote>
+<div><p>The figure containing the plot.</p>
+</div></blockquote>
+<p><strong>labels</strong> : list of strings</p>
+<blockquote>
+<div><p>Labels to be included in a legend for the figure.</p>
+</div></blockquote>
+<p><strong>artists</strong> : list of matplotlib artists</p>
+<blockquote class="last">
+<div><p>Symbology for the figure legend.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.hydro.Storm.summaryPlot">
+<code class="descname">summaryPlot</code><span class="sig-paren">(</span><em>axratio=2</em>, <em>filename=None</em>, <em>showLegend=True</em>, <em>precip=True</em>, <em>inflow=True</em>, <em>outflow=True</em>, <em>figopts={}</em>, <em>serieslabels={}</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#Storm.summaryPlot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.Storm.summaryPlot" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Creates a figure showing the hydrlogic record (flow and</dt>
+<dd>precipitation) of the storm</dd>
+<dt>Input:</dt>
+<dd><dl class="first docutils">
+<dt>axratio</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">optional float or int (default = 2)</span><dd>Relative height of the flow axis compared to the
+precipiation axis.</dd>
+<dt>filename</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">optional string (default = None)</span><dd>Filename to which the figure will be saved.</dd>
+</dl>
+<p class="last"><a href="#id1"><span class="problematic" id="id2">**</span></a>figwargs will be passed on to <cite>plt.Figure</cite></p>
+</dd>
+<dt>Writes:</dt>
+<dd>Figure of flow and precipitation for a storm</dd>
+<dt>Returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wqio.hydro.HydroRecord">
+<em class="property">class </em><code class="descclassname">wqio.hydro.</code><code class="descname">HydroRecord</code><span class="sig-paren">(</span><em>hydrodata</em>, <em>precipcol=None</em>, <em>inflowcol=None</em>, <em>outflowcol=None</em>, <em>tempcol=None</em>, <em>stormcol='storm'</em>, <em>minprecip=0.0</em>, <em>mininflow=0.0</em>, <em>minoutflow=0.0</em>, <em>outputfreqMinutes=10</em>, <em>intereventHours=6</em>, <em>volume_conversion=1</em>, <em>stormclass=None</em>, <em>lowmem=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#HydroRecord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.HydroRecord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Class representing an entire hydrologic record.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>hydrodata</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>DataFrame of hydrologic data of the storm. Should contain
+a unique index of type pandas.DatetimeIndex.</p>
+</div></blockquote>
+<p><strong>precipcol</strong> : string, optional (default = None)</p>
+<blockquote>
+<div><p>Name of column in <cite>hydrodata</cite> containing precipiation data.</p>
+</div></blockquote>
+<p><strong>inflowcol</strong> : string, optional (default = None)</p>
+<blockquote>
+<div><p>Name of column in <cite>hydrodata</cite> containing influent flow data.</p>
+</div></blockquote>
+<p><strong>outflowcol</strong> : string, optional (default = None)</p>
+<blockquote>
+<div><p>Name of column in <cite>hydrodata</cite> containing effluent flow data.</p>
+</div></blockquote>
+<p><strong>stormcol</strong> : string (default = &#8216;storm&#8217;)</p>
+<blockquote>
+<div><p>Name of column in <cite>hydrodata</cite> indentifying distinct storms.</p>
+</div></blockquote>
+<p><strong>minprecip, mininflow, minoutflow</strong> : float, optional (default = 0)</p>
+<blockquote>
+<div><p>The minimum amount of each hydrologic quantity below which a
+storm can be considered &#8220;small&#8221;.</p>
+</div></blockquote>
+<p><strong>outputfreqMinutes</strong> : int, optional (default = 10)</p>
+<blockquote>
+<div><p>The default frequency (minutes) to which all data will be
+resampled. Precipitation data will be summed up across &#8216;
+multiple timesteps during resampling, while flow will be
+averaged.</p>
+</div></blockquote>
+<p><strong>intereventHours</strong> : int, optional (default = 6)</p>
+<blockquote>
+<div><p>The dry duration (no flow or rain) required to signal the end of
+a storm.</p>
+</div></blockquote>
+<p><strong>volume_conversion</strong> : float, optional (default = 1)</p>
+<blockquote>
+<div><p>Conversion factor to go from flow to volume for a single
+observation.</p>
+</div></blockquote>
+<p><strong>stormclass</strong> : object, optional</p>
+<blockquote>
+<div><p>Defaults to wqio.hydro.Storm. Can be a subclass of that in cases
+where custom functionality is needed.</p>
+</div></blockquote>
+<p><strong>lowmem</strong> : bool (default = False)</p>
+<blockquote class="last">
+<div><p>If True, all dry observations are removed from the dataframe.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="wqio.hydro.HydroRecord.data">
+<code class="descname">data</code><a class="headerlink" href="#wqio.hydro.HydroRecord.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.HydroRecord.all_storms">
+<code class="descname">all_storms</code><a class="headerlink" href="#wqio.hydro.HydroRecord.all_storms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.HydroRecord.storms">
+<code class="descname">storms</code><a class="headerlink" href="#wqio.hydro.HydroRecord.storms" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.hydro.HydroRecord.storm_stats">
+<code class="descname">storm_stats</code><a class="headerlink" href="#wqio.hydro.HydroRecord.storm_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.hydro.HydroRecord.getStormFromTimestamp">
+<code class="descname">getStormFromTimestamp</code><span class="sig-paren">(</span><em>timestamp</em>, <em>lookback_hours=0</em>, <em>smallstorms=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#HydroRecord.getStormFromTimestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.HydroRecord.getStormFromTimestamp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the storm associdated with a give (sample) date</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>timestamp</strong> : pandas.Timestamp</p>
+<blockquote>
+<div><p>The date/time for which to search within the hydrologic
+record.</p>
+</div></blockquote>
+<p><strong>lookback_hours</strong> : positive int or float, optional (default = 0)</p>
+<blockquote>
+<div><p>If no storm is actively occuring at the provided timestamp,
+we can optionally look backwards in the hydrologic record a
+fixed amount of time (specified in hours). Negative values
+are ignored.</p>
+</div></blockquote>
+<p><strong>smallstorms</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>If True, small storms will be included in the search.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>storm_number</strong> : int</p>
+<p class="last"><strong>storm</strong> : wqio.Storm</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.hydro.HydroRecord.histogram">
+<code class="descname">histogram</code><span class="sig-paren">(</span><em>valuecol</em>, <em>bins</em>, <em>**factoropts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#HydroRecord.histogram"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.HydroRecord.histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a faceted, categorical histogram of storms.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>valuecol</strong> : str, optional</p>
+<blockquote>
+<div><p>The name of the column that should be categorized and plotted.</p>
+</div></blockquote>
+<p><strong>bins</strong> : array-like, optional</p>
+<blockquote>
+<div><p>The right-edges of the histogram bins.</p>
+</div></blockquote>
+<p><strong>factoropts</strong> : keyword arguments, optional</p>
+<blockquote>
+<div><p>Options passed directly to seaborn.factorplot</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : seaborn.FacetGrid</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">utils.figutils.categorical_histogram</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">seaborn.factorplot</span></code></p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wqio.hydro.DrainageArea">
+<em class="property">class </em><code class="descclassname">wqio.hydro.</code><code class="descname">DrainageArea</code><span class="sig-paren">(</span><em>total_area=1.0</em>, <em>imp_area=1.0</em>, <em>bmp_area=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#DrainageArea"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.DrainageArea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="method">
+<dt id="wqio.hydro.DrainageArea.simple_method">
+<code class="descname">simple_method</code><span class="sig-paren">(</span><em>storm_depth</em>, <em>volume_conversion=1.0</em>, <em>annualFactor=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/hydro.html#DrainageArea.simple_method"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.hydro.DrainageArea.simple_method" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimate runoff volume via Bob Pitt&#8217;s Simple Method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>storm_depth</strong> : float</p>
+<blockquote>
+<div><p>Depth of the storm.</p>
+</div></blockquote>
+<p><strong>volume_conversion</strong> : float, optional (default = 1.0)</p>
+<blockquote>
+<div><p>Conversion factor to go from [area units] * [depth units] to
+the desired [volume units]. If [area] = m^2, [depth] = mm,
+and [volume] = L, then <cite>volume_conversion</cite> = 1.</p>
+</div></blockquote>
+<p><strong>annualFactor</strong> : float, optional (default = 1.0)</p>
+<blockquote>
+<div><p>The Simple Method&#8217;s annual correction factor to account for
+small storms that do not produce runoff.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>runoff_volume</strong> : float</p>
+<blockquote class="last">
+<div><p>The volume of water entering the BMP immediately downstream
+of the drainage area.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="samples.html" class="btn btn-neutral float-right" title="Grab and Composite Sample API" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ros.html" class="btn btn-neutral" title="Regression on Order Statistics (ROS) API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

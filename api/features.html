@@ -1,0 +1,1453 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Features API &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../index.html"/>
+        <link rel="up" title="Statisical APIs" href="../api.html"/>
+        <link rel="prev" title="Grab and Composite Sample API" href="samples.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Statisical APIs</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="hydro.html">Hydrologic functions API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="samples.html">Grab and Composite Sample API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Features API</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../api.html">Statisical APIs</a> &raquo;</li>
+      
+    <li>Features API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/api/features.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-wqio.features">
+<span id="features-api"></span><span id="features-auto"></span><h1>Features API<a class="headerlink" href="#module-wqio.features" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="wqio.features.Parameter">
+<em class="property">class </em><code class="descclassname">wqio.features.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>name</em>, <em>units</em>, <em>usingTex=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
+<dt id="wqio.features.Parameter.name">
+<code class="descname">name</code><a class="headerlink" href="#wqio.features.Parameter.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Parameter.units">
+<code class="descname">units</code><a class="headerlink" href="#wqio.features.Parameter.units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Parameter.usingTex">
+<code class="descname">usingTex</code><a class="headerlink" href="#wqio.features.Parameter.usingTex" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Parameter.paramunit">
+<code class="descname">paramunit</code><span class="sig-paren">(</span><em>usecomma=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Parameter.paramunit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Parameter.paramunit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a string representation of the parameter and units.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>usecomma</strong> : bool, optional (default = False)</p>
+<blockquote class="last">
+<div><p>Toggles the format of the returned string attribute. If True
+the returned format is &#8220;&lt;parameter&gt;, &lt;unit&gt;&#8221;. Otherwise the
+format is &#8220;&lt;parameter&gt; (&lt;unit&gt;)&#8221;.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wqio.features.Location">
+<em class="property">class </em><code class="descclassname">wqio.features.</code><code class="descname">Location</code><span class="sig-paren">(</span><em>dataframe</em>, <em>rescol='res'</em>, <em>qualcol='qual'</em>, <em>ndval='ND'</em>, <em>station_type='inflow'</em>, <em>useROS=True</em>, <em>cencol='cen'</em>, <em>bsIter=10000</em>, <em>include=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Object providing convenient access to statistical and
+graphical methods for summarizing a single set of water quality
+observations for a single pollutant.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>A dataframe that contains at least two columns: one for the
+analytical values and another for the data qualfiers. Can
+contain any type of row index, but the column index must be
+simple (i.e., not a pandas.MultiIndex).</p>
+</div></blockquote>
+<p><strong>rescol</strong> : string, optional (default = &#8216;res&#8217;)</p>
+<blockquote>
+<div><p>Name of the column in <cite>dataframe</cite> that contains the
+analytical values.</p>
+</div></blockquote>
+<p><strong>qualcol</strong> : string, optional (default = &#8216;qual&#8217;)</p>
+<blockquote>
+<div><p>Name of the column in <cite>dataframe</cite> containing qualifiers.</p>
+</div></blockquote>
+<p><strong>ndval</strong> : string, optional (default = &#8216;ND&#8217;)</p>
+<blockquote>
+<div><p>The <em>only</em> value in the <cite>qualcol</cite> of <cite>dataframe</cite> that
+indicates that the corresponding value in <cite>rescol</cite> is
+non-detect.</p>
+</div></blockquote>
+<p><strong>station_type</strong> : string, optional</p>
+<blockquote>
+<div><p>Type of location being analyzed. Valid values are:
+&#8216;inflow&#8217; (default) or &#8216;outflow&#8217;.</p>
+</div></blockquote>
+<p><strong>useROS</strong> : bool, optional (default = True)</p>
+<blockquote>
+<div><p>Toggles the use of Regression On Order Statistics to
+estimate non-detect values when computing statistics.</p>
+</div></blockquote>
+<p><strong>cencol</strong> : string, optional (default = &#8216;cen&#8217;)</p>
+<blockquote>
+<div><p>Name of the column indicaticating if a results is censored.
+These values will be computed from <code class="docutils literal"><span class="pre">qualcol</span></code> and <code class="docutils literal"><span class="pre">ndval</span></code>.</p>
+</div></blockquote>
+<p><strong>bsIter</strong> : int, optional (default = 1e4)</p>
+<blockquote>
+<div><p>Number of interations to use when using a bootstrap
+algorithm to refine a statistic.</p>
+</div></blockquote>
+<p><strong>include</strong> : bool, optional (default = True)</p>
+<blockquote class="last">
+<div><p>Toggles the inclusion of the location when programmatically
+creating many <cite>Location</cite> objects.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="wqio.features.Location.dataframe">
+<code class="descname">dataframe</code><a class="headerlink" href="#wqio.features.Location.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Location.full_data">
+<code class="descname">full_data</code><a class="headerlink" href="#wqio.features.Location.full_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>full_data</cite> is deprecated!</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Location.data">
+<code class="descname">data</code><a class="headerlink" href="#wqio.features.Location.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Location.name">
+<code class="descname">name</code><a class="headerlink" href="#wqio.features.Location.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Location.definition">
+<code class="descname">definition</code><a class="headerlink" href="#wqio.features.Location.definition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Location.include">
+<code class="descname">include</code><a class="headerlink" href="#wqio.features.Location.include" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Location.exclude">
+<code class="descname">exclude</code><a class="headerlink" href="#wqio.features.Location.exclude" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.N">
+<code class="descname">N</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.N"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.N" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.hasData">
+<code class="descname">hasData</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.hasData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.hasData" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.all_positive">
+<code class="descname">all_positive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.all_positive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.all_positive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.ND">
+<code class="descname">ND</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.ND"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.ND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.NUnique">
+<code class="descname">NUnique</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.NUnique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.NUnique" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.fractionND">
+<code class="descname">fractionND</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.fractionND"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.fractionND" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.pnorm">
+<code class="descname">pnorm</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#wqio.features.Location.pnorm" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>pnorm</cite> is deprecated!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.plognorm">
+<code class="descname">plognorm</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#wqio.features.Location.plognorm" title="Permalink to this definition">¶</a></dt>
+<dd><p><cite>plognorm</cite> is deprecated!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.shapiro">
+<code class="descname">shapiro</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.shapiro"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.shapiro" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.shapiro_log">
+<code class="descname">shapiro_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.shapiro_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.shapiro_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.lilliefors">
+<code class="descname">lilliefors</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.lilliefors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.lilliefors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.lilliefors_log">
+<code class="descname">lilliefors_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.lilliefors_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.lilliefors_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.anderson">
+<code class="descname">anderson</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.anderson"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.anderson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.anderson_log">
+<code class="descname">anderson_log</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.anderson_log"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.anderson_log" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.analysis_space">
+<code class="descname">analysis_space</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.analysis_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.analysis_space" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.cov">
+<code class="descname">cov</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.cov"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.cov" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.min">
+<code class="descname">min</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.min"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.min" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.min_detect">
+<code class="descname">min_detect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.min_detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.min_detect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.min_DL">
+<code class="descname">min_DL</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.min_DL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.min_DL" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.max">
+<code class="descname">max</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.max"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.max" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.skew">
+<code class="descname">skew</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.skew"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.skew" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.pctl10">
+<code class="descname">pctl10</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.pctl10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.pctl10" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.pctl25">
+<code class="descname">pctl25</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.pctl25"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.pctl25" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.pctl75">
+<code class="descname">pctl75</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.pctl75"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.pctl75" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.pctl90">
+<code class="descname">pctl90</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.pctl90"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.pctl90" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.median">
+<code class="descname">median</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.median"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.median" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.median_conf_interval">
+<code class="descname">median_conf_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.median_conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.median_conf_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.mean">
+<code class="descname">mean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.mean_conf_interval">
+<code class="descname">mean_conf_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.mean_conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.mean_conf_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.std">
+<code class="descname">std</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.std"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.std" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.logmean">
+<code class="descname">logmean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.logmean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.logmean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.logmean_conf_interval">
+<code class="descname">logmean_conf_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.logmean_conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.logmean_conf_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.logstd">
+<code class="descname">logstd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.logstd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.logstd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.geomean">
+<code class="descname">geomean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.geomean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.geomean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.geomean_conf_interval">
+<code class="descname">geomean_conf_interval</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.geomean_conf_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.geomean_conf_interval" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.geostd">
+<code class="descname">geostd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.geostd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.geostd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.boxplot_stats">
+<code class="descname">boxplot_stats</code><span class="sig-paren">(</span><em>log=True</em>, <em>bacteria=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.boxplot_stats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.boxplot_stats" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.boxplot">
+<code class="descname">boxplot</code><span class="sig-paren">(</span><em>ax=None</em>, <em>pos=1</em>, <em>yscale='log'</em>, <em>notch=True</em>, <em>showmean=True</em>, <em>width=0.8</em>, <em>bacteria=False</em>, <em>ylabel=None</em>, <em>xlabel=None</em>, <em>minpoints=5</em>, <em>patch_artist=False</em>, <em>xlims=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.boxplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.boxplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a boxplot and whisker on a matplotlib figure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : optional matplotlib axes object or None (default)</p>
+<blockquote>
+<div><p>Axes on which the boxplot with be drawn. If None, one will
+be created.</p>
+</div></blockquote>
+<p><strong>pos</strong> : optional int (default=1)</p>
+<blockquote>
+<div><p>Location along x-axis where boxplot will be placed.</p>
+</div></blockquote>
+<p><strong>yscale</strong> : optional string [&#8216;linear&#8217; or &#8216;log&#8217; (default)]</p>
+<blockquote>
+<div><p>Scale formatting of the y-axis</p>
+</div></blockquote>
+<p><strong>notch</strong> : optional bool (default=True)</p>
+<blockquote>
+<div><p>Toggles drawing of bootstrapped confidence interval around
+the median.</p>
+</div></blockquote>
+<p><strong>showmean</strong> : optional bool (default=True)</p>
+<blockquote>
+<div><p>Toggles plotting the mean value on the boxplot as a point.
+See also the <cite>bacteria</cite> kwarg</p>
+</div></blockquote>
+<p><strong>width</strong> : optional float (default=0.8)</p>
+<blockquote>
+<div><p>Width of boxplot on the axes (data units)</p>
+</div></blockquote>
+<p><strong>bacteria</strong> : optional bool (default False)</p>
+<blockquote>
+<div><p>If True, uses the geometric mean when <cite>showmean</cite> is True.
+Otherwise, the arithmetic mean is used.</p>
+</div></blockquote>
+<p><strong>ylabel</strong> : string or None (default):</p>
+<blockquote>
+<div><p>Label for y-axis</p>
+</div></blockquote>
+<p><strong>xlabel</strong> : string or None (default):</p>
+<blockquote>
+<div><p>Label for x-axis. If None, uses self.name</p>
+</div></blockquote>
+<p><strong>minpoints</strong> : int, optional (default = 5)</p>
+<blockquote>
+<div><p>The minimum number of data points required to draw a
+boxplot. If too few points are present, the drawing will
+fallback to a verticalScatter plot.</p>
+</div></blockquote>
+<p><strong>patch_artist</strong> : optional bool (default = False)</p>
+<blockquote>
+<div><p>Toggles the use of patch artist instead of a line artists
+for the boxes</p>
+</div></blockquote>
+<p><strong>xlims</strong> : dict, optional</p>
+<blockquote>
+<div><p>Dictionary of limits for the x-axis. Keys must be either
+&#8220;left&#8221;, &#8220;right&#8221;, or both</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.probplot">
+<code class="descname">probplot</code><span class="sig-paren">(</span><em>ax=None</em>, <em>yscale='log'</em>, <em>axtype='prob'</em>, <em>ylabel=None</em>, <em>clearYLabels=False</em>, <em>managegrid=True</em>, <em>rotateticklabels=True</em>, <em>setxlimits=True</em>, <em>bestfit=False</em>, <em>**plotopts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.probplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.probplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a probability plot on a matplotlib figure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : matplotlib axes object, optional or None (default).</p>
+<blockquote>
+<div><p>The Axes on which to plot. If None is provided, one will be
+created.</p>
+</div></blockquote>
+<p><strong>axtype</strong> : string, optional (default = &#8216;pp&#8217;)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Type of plot to be created. Options are:</dt>
+<dd><ul class="first last simple">
+<li>&#8216;prob&#8217;: probabilty plot</li>
+<li>&#8216;pp&#8217;: percentile plot</li>
+<li>&#8216;qq&#8217;: quantile plot</li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>xlabel, ylabel</strong> : string, optional or None (default)</p>
+<blockquote>
+<div><p>Axis label for the plot.</p>
+</div></blockquote>
+<p><strong>yscale</strong> : string , optional(default = &#8216;log&#8217;)</p>
+<blockquote>
+<div><p>Scale for the y-axis. Use &#8216;log&#8217; for logarithmic (default) or
+&#8216;linear&#8217;.</p>
+</div></blockquote>
+<p><strong>clearYLabels</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>If True, removed y-<em>tick</em> labels from teh Axes.</p>
+</div></blockquote>
+<p><strong>managegrid</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True, typical gridlines will be added to the Axes.</p>
+</div></blockquote>
+<p><strong>rotateticklabels</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True, the tick labels of the probability axes will be
+rotated.</p>
+</div></blockquote>
+<p><strong>setxlimits</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True and <cite>axtype</cite> == &#8216;prob&#8217;, tehe axis limits will be
+automatically set based on the number of points in the plot.</p>
+</div></blockquote>
+<p><strong>bestfit</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>Specifies whether a best-fit line should be added to the
+plot.</p>
+</div></blockquote>
+<p><strong>plotopts</strong> : keyword arguments</p>
+<blockquote>
+<div><p>Additional options passed directly to <cite>plt.plot</cite> when
+drawing the data points.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib.Figure instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.statplot">
+<code class="descname">statplot</code><span class="sig-paren">(</span><em>pos=1</em>, <em>yscale='log'</em>, <em>notch=True</em>, <em>showmean=True</em>, <em>width=0.8</em>, <em>bacteria=False</em>, <em>ylabel=None</em>, <em>xlabel=None</em>, <em>axtype='prob'</em>, <em>patch_artist=False</em>, <em>**plotopts</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.statplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.statplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a two-axis figure with a boxplot &amp; probability plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>pos</strong> : int, optional (default=1)</p>
+<blockquote>
+<div><p>Location along x-axis where boxplot will be placed.</p>
+</div></blockquote>
+<p><strong>yscale</strong> : string, optional [&#8216;linear&#8217; or &#8216;log&#8217; (default)]</p>
+<blockquote>
+<div><p>Scale formatting of the y-axis</p>
+</div></blockquote>
+<p><strong>notch</strong> : bool, optional (default=True)</p>
+<blockquote>
+<div><p>Toggles drawing of bootstrapped confidence interval around
+the median.</p>
+</div></blockquote>
+<p><strong>showmean</strong> : bool, optional (default=True)</p>
+<blockquote>
+<div><p>Toggles plotting the mean value on the boxplot as a point.
+See also the <cite>bacteria</cite> kwarg</p>
+</div></blockquote>
+<p><strong>width</strong> : float, optional (default=0.8)</p>
+<blockquote>
+<div><p>Width of boxplot on the axes (data units)</p>
+</div></blockquote>
+<p><strong>bacteria</strong> : bool, optional (default False)</p>
+<blockquote>
+<div><p>If True, uses the geometric mean when <cite>showmean</cite> is True.
+Otherwise, the arithmetic mean is used.</p>
+</div></blockquote>
+<p><strong>ylabel</strong> : string, optional or None (default):</p>
+<blockquote>
+<div><p>Label for y-axis</p>
+</div></blockquote>
+<p><strong>xlabel</strong> : string or None (default):</p>
+<blockquote>
+<div><p>Label for x-axis of boxplot. If None, uses self.name</p>
+</div></blockquote>
+<p><strong>axtype</strong> : string, optional (default = &#8216;pp&#8217;)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Type of probability plot to be created. Options are:</dt>
+<dd><ul class="first last simple">
+<li>&#8216;prob&#8217;: probabilty plot</li>
+<li>&#8216;pp&#8217;: percentile plot</li>
+<li>&#8216;qq&#8217;: quantile plot</li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>patch_artist</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>Toggles the use of patch artist instead of a line artists
+for the boxes</p>
+</div></blockquote>
+<p><strong>plotopts</strong> : keyword arguments</p>
+<blockquote>
+<div><p>Additional options passed directly to <cite>plt.plot</cite> when
+drawing the data points on the probability plots.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Location.verticalScatter">
+<code class="descname">verticalScatter</code><span class="sig-paren">(</span><em>ax=None</em>, <em>pos=1</em>, <em>jitter=0.4</em>, <em>alpha=0.75</em>, <em>ylabel=None</em>, <em>yscale='log'</em>, <em>ignoreROS=True</em>, <em>markersize=4</em>, <em>xlims=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Location.verticalScatter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Location.verticalScatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Draws a clustered &amp; jittered scatter plot of the data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : matplotlib axes object, optional or None (default)</p>
+<blockquote>
+<div><p>Axes on which the points with be drawn. If None, one will
+be created.</p>
+</div></blockquote>
+<p><strong>pos</strong> : int, optional (default=1)</p>
+<blockquote>
+<div><p>Location along x-axis where data will be centered.</p>
+</div></blockquote>
+<p><strong>jitter</strong> : float, optional (default=0.80)</p>
+<blockquote>
+<div><p>Width of the random x-values uniform distributed around
+<cite>pos</cite></p>
+</div></blockquote>
+<p><strong>alpha</strong> : float, optional (default=0.75)</p>
+<blockquote>
+<div><p>Opacity of the marker (1.0 -&gt; opaque; 0.0 -&gt; transparent)</p>
+</div></blockquote>
+<p><strong>yscale</strong> : string, optional [&#8216;linear&#8217; or &#8216;log&#8217; (default)]</p>
+<blockquote>
+<div><p>Scale formatting of the y-axis</p>
+</div></blockquote>
+<p><strong>ylabel</strong> : string, optional or None (default):</p>
+<blockquote>
+<div><p>Label for y-axis</p>
+</div></blockquote>
+<p><strong>ignoreROS</strong> : bool, optional (default = True)</p>
+<blockquote>
+<div><p>By default, this function will plot the original, non-ROS&#8217;d
+data with a different symbol for non-detects. If <cite>True</cite>, the
+and <cite>self.useROS</cite> is <cite>True</cite>, this function will plot the
+ROS&#8217;d data with a single marker.</p>
+</div></blockquote>
+<p><strong>markersize</strong> : int, optional (default = 6)</p>
+<blockquote>
+<div><p>Size of data markers on the figure in points.</p>
+</div></blockquote>
+<p><strong>xlims</strong> : dict, optional</p>
+<blockquote>
+<div><p>Dictionary of limits for the x-axis. Keys must be either
+&#8220;left&#8221;, &#8220;right&#8221;, or both</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wqio.features.Dataset">
+<em class="property">class </em><code class="descclassname">wqio.features.</code><code class="descname">Dataset</code><span class="sig-paren">(</span><em>influent</em>, <em>effluent</em>, <em>useROS=True</em>, <em>name=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Dataset: object for comparings two Location objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>influent, effluent</strong> : wqio.Location</p>
+<blockquote>
+<div><p>Location objects that will be compared. Data from each Location
+should be joinable on the dataframe&#8217;s index.</p>
+</div></blockquote>
+<p><strong>useROS</strong> : bool (default = True)</p>
+<blockquote>
+<div><p>Toggles the use of Regression On Order Statistics to
+estimate non-detect values when computing statistics.</p>
+</div></blockquote>
+<p><strong>name</strong> : string optional</p>
+<blockquote class="last">
+<div><p>Name for the dataset.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Currently moving away from this in favor of DataCollections.</p>
+<dl class="method">
+<dt id="wqio.features.Dataset.data">
+<code class="descname">data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.paired_data">
+<code class="descname">paired_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.paired_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.paired_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.n_pairs">
+<code class="descname">n_pairs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.n_pairs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.n_pairs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Dataset.name">
+<code class="descname">name</code><a class="headerlink" href="#wqio.features.Dataset.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Dataset.definition">
+<code class="descname">definition</code><a class="headerlink" href="#wqio.features.Dataset.definition" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Dataset.include">
+<code class="descname">include</code><a class="headerlink" href="#wqio.features.Dataset.include" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="wqio.features.Dataset.exclude">
+<code class="descname">exclude</code><a class="headerlink" href="#wqio.features.Dataset.exclude" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.medianCIsOverlap">
+<code class="descname">medianCIsOverlap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.medianCIsOverlap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.medianCIsOverlap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.wilcoxon_z">
+<code class="descname">wilcoxon_z</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.wilcoxon_z"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.wilcoxon_z" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Wilcoxon Z-statistic.</p>
+<p>Tests the null hypothesis that the influent and effluent data are
+sampled from the same statistical distribution.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.wilcoxon</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Operates on natural log-transormed paired data only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.wilcoxon_p">
+<code class="descname">wilcoxon_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.wilcoxon_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.wilcoxon_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two-sided p-value of the Wilcoxon test</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.wilcoxon</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.mannwhitney_u">
+<code class="descname">mannwhitney_u</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.mannwhitney_u"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.mannwhitney_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mann-Whitney U-statistic.</p>
+<p>Performs a basic rank-sum test.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.mannwhitneyu</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Operates on untransformed, non-paired data.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.mannwhitney_p">
+<code class="descname">mannwhitney_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.mannwhitney_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.mannwhitney_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two-sided p-value of the Mann-Whitney test</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.mannwhitneyu</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Scipy functions returns the 1-sided p-values. This corrects for that.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.kendall_tau">
+<code class="descname">kendall_tau</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.kendall_tau"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.kendall_tau" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Kendall-Tau statistic.</p>
+<p>Measure of the correspondence between two the rankings of influent
+and effluent data.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.kendalltau</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Operates on paired data only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.kendall_p">
+<code class="descname">kendall_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.kendall_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.kendall_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two-sided p-value of the Kendall test</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.kendalltau</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.spearman_rho">
+<code class="descname">spearman_rho</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.spearman_rho"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.spearman_rho" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Spearman&#8217;s rho statistic.</p>
+<p>Tests for monotonicity of the relationship between influent and.
+effluent data.</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.spearmanr</span></code></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Operates on paired data only.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.spearman_p">
+<code class="descname">spearman_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.spearman_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.spearman_p" title="Permalink to this definition">¶</a></dt>
+<dd><p>Two-sided p-value of the Spearman test</p>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">scipy.stats.spearmanr</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.ttest_t">
+<code class="descname">ttest_t</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.ttest_t"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.ttest_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.ttest_p">
+<code class="descname">ttest_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.ttest_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.ttest_p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.levene_ks">
+<code class="descname">levene_ks</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.levene_ks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.levene_ks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.levene_p">
+<code class="descname">levene_p</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.levene_p"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.levene_p" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.theil_medslope">
+<code class="descname">theil_medslope</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.theil_medslope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.theil_medslope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.theil_intercept">
+<code class="descname">theil_intercept</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.theil_intercept"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.theil_intercept" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.theil_loslope">
+<code class="descname">theil_loslope</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.theil_loslope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.theil_loslope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.theil_hislope">
+<code class="descname">theil_hislope</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.theil_hislope"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.theil_hislope" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.theilSlopes">
+<code class="descname">theilSlopes</code><span class="sig-paren">(</span><em>log_infl=False</em>, <em>log_effl=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.theilSlopes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.theilSlopes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.boxplot">
+<code class="descname">boxplot</code><span class="sig-paren">(</span><em>ax=None</em>, <em>pos=1</em>, <em>yscale='log'</em>, <em>notch=True</em>, <em>showmean=True</em>, <em>width=0.8</em>, <em>bacteria=False</em>, <em>ylabel=None</em>, <em>xlims=None</em>, <em>bothTicks=True</em>, <em>offset=0.5</em>, <em>patch_artist=False</em>, <em>minpoints=5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.boxplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.boxplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a boxplot to a matplotlib figure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : matplotlib axes object or None (default), optional</p>
+<blockquote>
+<div><p>Axes on which the boxplot with be drawn. If None, one will
+be created.</p>
+</div></blockquote>
+<p><strong>pos</strong> : int, optional (default=1)</p>
+<blockquote>
+<div><p>Location along x-axis where boxplot will be placed.</p>
+</div></blockquote>
+<p><strong>yscale</strong> : optional string [&#8216;linear&#8217; or &#8216;log&#8217; (default)]</p>
+<blockquote>
+<div><p>Scale formatting of the y-axis</p>
+</div></blockquote>
+<p><strong>notch</strong> : bool, optional (default=True)</p>
+<blockquote>
+<div><p>Toggles drawing of bootstrapped confidence interval around
+the median.</p>
+</div></blockquote>
+<p><strong>showmean</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>Toggles plotting the mean value on the boxplot as a point.
+See also the <cite>bacteria</cite> kwarg</p>
+</div></blockquote>
+<p><strong>width</strong> : float, optional (default=0.8)</p>
+<blockquote>
+<div><p>Width of boxplot on the axes (data units)</p>
+</div></blockquote>
+<p><strong>bacteria</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>If True, uses the geometric mean when <cite>showmean</cite> is True.
+Otherwise, the arithmetic mean is used.</p>
+</div></blockquote>
+<p><strong>ylabel</strong> : string or None (default):</p>
+<blockquote>
+<div><p>Label for y-axis</p>
+</div></blockquote>
+<p><strong>xlims</strong> : sequence (length=2), dict, or None (default), optional</p>
+<blockquote>
+<div><p>Custom limits of the x-axis. If None, defaults to
+[pos-1, pos+1].</p>
+</div></blockquote>
+<p><strong>bothTicks</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True, each box gets a tick label. Otherwise, both get a
+single tick.</p>
+</div></blockquote>
+<p><strong>offset</strong> : float, optional (default = 0.5)</p>
+<blockquote>
+<div><p>Spacing, in x-axis data coordinates, of the boxplots.</p>
+</div></blockquote>
+<p><strong>patch_artist</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>Toggles the use of patch artist instead of a line artists
+for the boxes</p>
+</div></blockquote>
+<p><strong>minpoints</strong> : int, optional (default = 5)</p>
+<blockquote>
+<div><p>The minimum number of data points required to draw a
+boxplot. If too few points are present, the drawing will
+fallback to a verticalScatter plot.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.probplot">
+<code class="descname">probplot</code><span class="sig-paren">(</span><em>ax=None</em>, <em>yscale='log'</em>, <em>axtype='prob'</em>, <em>ylabel=None</em>, <em>clearYLabels=False</em>, <em>rotateticklabels=True</em>, <em>setxlimits=True</em>, <em>managegrid=True</em>, <em>bestfit=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.probplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.probplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds probability plots to a matplotlib figure</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : matplotlib axes object, optional or None (default).</p>
+<blockquote>
+<div><p>The Axes on which to plot. If None is provided, one will be
+created.</p>
+</div></blockquote>
+<p><strong>yscale</strong> : string , optional(default = &#8216;log&#8217;)</p>
+<blockquote>
+<div><p>Scale for the y-axis. Use &#8216;log&#8217; for logarithmic (default) or
+&#8216;linear&#8217;.</p>
+</div></blockquote>
+<p><strong>axtype</strong> : string, optional (default = &#8216;pp&#8217;)</p>
+<blockquote>
+<div><dl class="docutils">
+<dt>Type of plot to be created. Options are:</dt>
+<dd><ul class="first last simple">
+<li>&#8216;prob&#8217;: probabilty plot</li>
+<li>&#8216;pp&#8217;: percentile plot</li>
+<li>&#8216;qq&#8217;: quantile plot</li>
+</ul>
+</dd>
+</dl>
+</div></blockquote>
+<p><strong>ylabel</strong> : string, optional or None (default)</p>
+<blockquote>
+<div><p>Axis label for the plot.</p>
+</div></blockquote>
+<p><strong>clearYLabels</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>If True, removed y-<em>tick</em> labels from teh Axes.</p>
+</div></blockquote>
+<p><strong>rotateticklabels</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True, the tick labels of the probability axes will be
+rotated.</p>
+</div></blockquote>
+<p><strong>setxlimits</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True and <cite>axtype</cite> == &#8216;prob&#8217;, tehe axis limits will be
+automatically set based on the number of points in the plot.</p>
+</div></blockquote>
+<p><strong>managegrid</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>If True, typical gridlines will be added to the Axes.</p>
+</div></blockquote>
+<p><strong>bestfit</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>Specifies whether a best-fit line should be added to the
+plot.</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.statplot">
+<code class="descname">statplot</code><span class="sig-paren">(</span><em>pos=1</em>, <em>yscale='log'</em>, <em>notch=True</em>, <em>showmean=True</em>, <em>width=0.8</em>, <em>bacteria=False</em>, <em>ylabel=None</em>, <em>axtype='qq'</em>, <em>patch_artist=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.statplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.statplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a two-axis figure with a boxplot &amp; probability plot.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>pos</strong> : int, optional (default=1)</p>
+<blockquote>
+<div><p>Location along x-axis where boxplot will be placed.</p>
+</div></blockquote>
+<p><strong>yscale</strong> : string, optional [&#8216;linear&#8217; or &#8216;log&#8217; (default)]</p>
+<blockquote>
+<div><p>Scale formatting of the y-axis</p>
+</div></blockquote>
+<p><strong>notch</strong> : bool, optional (default=True)</p>
+<blockquote>
+<div><p>Toggles drawing of bootstrapped confidence interval around
+the median.</p>
+</div></blockquote>
+<p><strong>showmean</strong> : bool, optional (default=True)</p>
+<blockquote>
+<div><p>Toggles plotting the mean value on the boxplot as a point.
+See also the <cite>bacteria</cite> kwarg</p>
+</div></blockquote>
+<p><strong>width</strong> : float, optional (default=0.8)</p>
+<blockquote>
+<div><p>Width of boxplot on the axes (data units)</p>
+</div></blockquote>
+<p><strong>bacteria</strong> : bool, optional (default False)</p>
+<blockquote>
+<div><p>If True, uses the geometric mean when <cite>showmean</cite> is True.
+Otherwise, the arithmetic mean is used.</p>
+</div></blockquote>
+<p><strong>ylabel</strong> : string, optional or None (default):</p>
+<blockquote>
+<div><p>Label for y-axis</p>
+</div></blockquote>
+<p><strong>probAxis</strong> : bool, optional (default = True)</p>
+<blockquote>
+<div><p>Toggles the display of probabilities (True) or Z-scores
+(i.e., theoretical quantiles) on the x-axis</p>
+</div></blockquote>
+<p><strong>patch_artist</strong> : bool, optional (default = False)</p>
+<blockquote>
+<div><p>Toggles the use of patch artist instead of a line artists
+for the boxes</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.jointplot">
+<code class="descname">jointplot</code><span class="sig-paren">(</span><em>hist=False</em>, <em>kde=True</em>, <em>rug=True</em>, <em>**scatter_kws</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.jointplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.jointplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a joint distribution plot for the dataset</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>hist</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>Toggles showing histograms on the distribution plots</p>
+</div></blockquote>
+<p><strong>kde</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>Toggles showing KDE plots on the distribution plots</p>
+</div></blockquote>
+<p><strong>run</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>Toggles showing rug plots on the distribution plots</p>
+</div></blockquote>
+<p><strong>**scatter_kws</strong> : keyword arguments</p>
+<blockquote>
+<div><p>Optionals passed directly to Dataset.scatterplot</p>
+</div></blockquote>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><strong>jg</strong> : seaborn.JointGrid</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><code class="xref py py-obj docutils literal"><span class="pre">seaborn.JointGrid</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">seaborn.jointplot</span></code>, <code class="xref py py-obj docutils literal"><span class="pre">seaborn.distplot</span></code>, <a class="reference internal" href="#wqio.features.Dataset.scatterplot" title="wqio.features.Dataset.scatterplot"><code class="xref py py-obj docutils literal"><span class="pre">Dataset.scatterplot</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.Dataset.scatterplot">
+<code class="descname">scatterplot</code><span class="sig-paren">(</span><em>ax=None</em>, <em>xscale='log'</em>, <em>yscale='log'</em>, <em>showlegend=True</em>, <em>xlabel=None</em>, <em>ylabel=None</em>, <em>one2one=False</em>, <em>useROS=False</em>, <em>bestfit=False</em>, <em>minpoints=3</em>, <em>eqn_pos='lower right'</em>, <em>equal_scales=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#Dataset.scatterplot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.Dataset.scatterplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an influent/effluent scatter plot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>ax</strong> : matplotlib axes object or None (default), optional</p>
+<blockquote>
+<div><p>Axes on which the scatterplot with be drawn. If None, one
+will be created.</p>
+</div></blockquote>
+<p><strong>xscale, yscale</strong> : string [&#8216;linear&#8217; or &#8216;log&#8217; (default)], optional</p>
+<blockquote>
+<div><p>Scale formatting of the [x|y]-axis</p>
+</div></blockquote>
+<p><strong>xlabel, ylabel</strong> : string or None (default), optional:</p>
+<blockquote>
+<div><p>Label for [x|y]-axis. If None, will be &#8216;Influent&#8217;. If the
+dataset definition is available and incldues a Parameter,
+that will be included as will. For no label, use
+e.g., <cite>xlabel = &#8220;&#8221;</cite>.</p>
+</div></blockquote>
+<p><strong>showlegend</strong> : bool, optional (default is True)</p>
+<blockquote>
+<div><p>Toggles including a legend on the plot.</p>
+</div></blockquote>
+<p><strong>one2one</strong> : bool, optional (default is False), optional</p>
+<blockquote>
+<div><p>Toggles the inclusion of the 1:1 line (i.e. line of
+equality).</p>
+</div></blockquote>
+<p><strong>useROS</strong> : bool, optional (default is False)</p>
+<blockquote>
+<div><p>Toggles the use of the ROS&#8217;d results. If False, raw results
+(i.e., detection limit for NDs) are used with varying
+symbology.</p>
+</div></blockquote>
+<p><strong>Returns</strong></p>
+<p><strong>&#8212;&#8212;</strong></p>
+<p class="last"><strong>fig</strong> : matplotlib Figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="wqio.features.DataCollection">
+<em class="property">class </em><code class="descclassname">wqio.features.</code><code class="descname">DataCollection</code><span class="sig-paren">(</span><em>dataframe</em>, <em>rescol='res'</em>, <em>qualcol='qual'</em>, <em>cencol='cen'</em>, <em>stationcol='station'</em>, <em>paramcol='parameter'</em>, <em>ndval='ND'</em>, <em>othergroups=None</em>, <em>useROS=True</em>, <em>filterfxn=None</em>, <em>bsIter=10000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>WIP: object to compare an arbitrary number of Locations</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>dataframe</strong> : pandas.DataFrame</p>
+<blockquote>
+<div><p>Dataframe all of the data to analyze.</p>
+</div></blockquote>
+<p><strong>rescol, qualcol, stationcol, paramcol</strong> : string</p>
+<blockquote>
+<div><p>Column labels for the results, qualifiers, stations (monitoring
+locations), and parameters (pollutants), respectively.</p>
+</div></blockquote>
+<p><strong>ndval</strong> : string (default = &#8216;ND&#8217;)</p>
+<blockquote>
+<div><p>The <em>only</em> value found in <code class="docutils literal"><span class="pre">qualcol</span></code> that indicates that a
+result is a non-detect. Non-detect results should be reported
+as the detection limits.</p>
+</div></blockquote>
+<p><strong>othergroups</strong> : list of strings, optional</p>
+<blockquote>
+<div><p>Other columns besides <code class="docutils literal"><span class="pre">stationcol</span></code> and <code class="docutils literal"><span class="pre">paramcol</span></code> that
+should be considered when grouping into subsets of data.</p>
+</div></blockquote>
+<p><strong>useROS</strong> : bool (default = True)</p>
+<blockquote>
+<div><p>Toggles the use of Regression On Order Statistics to
+estimate non-detect values when computing statistics.</p>
+</div></blockquote>
+<p><strong>filterfxn</strong> : callable, optional</p>
+<blockquote>
+<div><p>Function that will we passes to a pandas.Groupby object that
+will filter out groups that should not be analyzed (for
+whatever reason).</p>
+</div></blockquote>
+<p><strong>bsIter</strong> : int</p>
+<blockquote class="last">
+<div><p>Number of iterations the bootstrapper should use when estimating
+confidence intervals around a statistic.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="wqio.features.DataCollection.filterfxn">
+<code class="descname">filterfxn</code><a class="headerlink" href="#wqio.features.DataCollection.filterfxn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.tidy">
+<code class="descname">tidy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.tidy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.tidy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.locations">
+<code class="descname">locations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.locations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.datasets">
+<code class="descname">datasets</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.datasets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.medians">
+<code class="descname">medians</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.medians"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.medians" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.means">
+<code class="descname">means</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.means"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.means" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.std_devs">
+<code class="descname">std_devs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.std_devs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.std_devs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.percentiles">
+<code class="descname">percentiles</code><span class="sig-paren">(</span><em>percentile</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.percentiles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.percentiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.logmean">
+<code class="descname">logmean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.logmean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.logmean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.logstd">
+<code class="descname">logstd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.logstd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.logstd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.geomean">
+<code class="descname">geomean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.geomean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.geomean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.geostd">
+<code class="descname">geostd</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.geostd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.geostd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.count">
+<code class="descname">count</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.selectLocations">
+<code class="descname">selectLocations</code><span class="sig-paren">(</span><em>squeeze=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.selectLocations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.selectLocations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.selectDatasets">
+<code class="descname">selectDatasets</code><span class="sig-paren">(</span><em>squeeze=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.selectDatasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.selectDatasets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.stat_summary">
+<code class="descname">stat_summary</code><span class="sig-paren">(</span><em>groupcols=None</em>, <em>useROS=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.stat_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.stat_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="wqio.features.DataCollection.facet_kde">
+<code class="descname">facet_kde</code><span class="sig-paren">(</span><em>row='category'</em>, <em>col='parameter'</em>, <em>hue='station'</em>, <em>log=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wqio/features.html#DataCollection.facet_kde"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wqio.features.DataCollection.facet_kde" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="samples.html" class="btn btn-neutral" title="Grab and Composite Sample API" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

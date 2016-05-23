@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wqio.samples &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Statisical APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>wqio.samples</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for wqio.samples</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn.apionly</span> <span class="kn">as</span> <span class="nn">seaborn</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">wqio</span> <span class="kn">import</span> <span class="n">utils</span>
+
+
+<span class="n">_basic_doc</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; {} water quality sample</span>
+
+<span class="s2">Container to hold water quality results from many different pollutants</span>
+<span class="s2">collected at a single point in time.</span>
+
+<span class="s2">Parameters</span>
+<span class="s2">----------</span>
+<span class="s2">dataframe : pandas.DataFrame</span>
+<span class="s2">    The water quality data.</span>
+<span class="s2">starttime : datetime-like</span>
+<span class="s2">    The date and time at which the sample collection started.</span>
+<span class="s2">samplefreq : string, optional</span>
+<span class="s2">    A valid pandas timeoffset string specifying the frequency with which</span>
+<span class="s2">    sample aliquots are collected.</span>
+<span class="s2">endtime : datetime-like, optional</span>
+<span class="s2">    The date and time at which sample collection ended.</span>
+<span class="s2">storm : wqio.Storm object, optional</span>
+<span class="s2">    A Storm object (or a subclass or Storm) that triggered sample</span>
+<span class="s2">    collection.</span>
+<span class="s2">rescol, qualcol, dlcol, unitscol : string, optional</span>
+<span class="s2">    Strings that define the column labels for the results, qualifiers,</span>
+<span class="s2">    detection limits, and units if measure, respectively.</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="k">class</span> <span class="nc">_basic_wq_sample</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">starttime</span><span class="p">,</span> <span class="n">samplefreq</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">endtime</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">storm</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">rescol</span><span class="o">=</span><span class="s1">&#39;res&#39;</span><span class="p">,</span>
+                 <span class="n">qualcol</span><span class="o">=</span><span class="s1">&#39;qual&#39;</span><span class="p">,</span> <span class="n">dlcol</span><span class="o">=</span><span class="s1">&#39;DL&#39;</span><span class="p">,</span> <span class="n">unitscol</span><span class="o">=</span><span class="s1">&#39;units&#39;</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wqdata</span> <span class="o">=</span> <span class="n">dataframe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_startime</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">starttime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endtime</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">endtime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samplefreq</span> <span class="o">=</span> <span class="n">samplefreq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_markersize</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linestyle</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yfactor</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_season</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">getSeason</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">starttime</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">storm</span> <span class="o">=</span> <span class="n">storm</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">season</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_season</span>
+    <span class="nd">@season.setter</span>
+    <span class="k">def</span> <span class="nf">season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_season</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wqdata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wqdata</span>
+    <span class="nd">@wqdata.setter</span>
+    <span class="k">def</span> <span class="nf">wqdata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wqdata</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">starttime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startime</span>
+    <span class="nd">@starttime.setter</span>
+    <span class="k">def</span> <span class="nf">starttime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_startime</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">endtime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endtime</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_endtime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_startime</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_endtime</span>
+    <span class="nd">@endtime.setter</span>
+    <span class="k">def</span> <span class="nf">endtime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_endtime</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">samplefreq</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_samplefreq</span>
+    <span class="nd">@samplefreq.setter</span>
+    <span class="k">def</span> <span class="nf">samplefreq</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_samplefreq</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">linestyle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linestyle</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_linestyle</span> <span class="o">=</span> <span class="s1">&#39;none&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_linestyle</span>
+    <span class="nd">@linestyle.setter</span>
+    <span class="k">def</span> <span class="nf">linestyle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_linestyle</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">markersize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_markersize</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_markersize</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_markersize</span>
+    <span class="nd">@markersize.setter</span>
+    <span class="k">def</span> <span class="nf">markersize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_markersize</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">yfactor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yfactor</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_yfactor</span> <span class="o">=</span> <span class="mf">0.25</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yfactor</span>
+    <span class="nd">@yfactor.setter</span>
+    <span class="k">def</span> <span class="nf">yfactor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_yfactor</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">plot_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">isFocus</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">asrug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_ts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">isFocus</span><span class="p">:</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.75</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.35</span>
+
+        <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">yposition</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">yfactor</span> <span class="o">*</span> <span class="n">ymax</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_ts</span><span class="p">)</span>
+
+        <span class="n">timeseries</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">yposition</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_ts</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">asrug</span><span class="p">:</span>
+            <span class="n">seaborn</span><span class="o">.</span><span class="n">rugplot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample_ts</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                              <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">timeseries</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">marker</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                            <span class="n">linestyle</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linestyle</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Black&#39;</span><span class="p">,</span>
+                            <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;_nolegend&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                            <span class="n">mew</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">marker</span><span class="p">,</span> <span class="n">mew</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+                              <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">line</span>
+
+
+<div class="viewcode-block" id="CompositeSample"><a class="viewcode-back" href="../../api/samples.html#wqio.samples.CompositeSample">[docs]</a><span class="k">class</span> <span class="nc">CompositeSample</span><span class="p">(</span><span class="n">_basic_wq_sample</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Class for composite samples &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="s1">&#39;Composite Sample&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
+    <span class="nd">@label.setter</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">marker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="o">=</span> <span class="s1">&#39;x&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span>
+    <span class="nd">@marker.setter</span>
+    <span class="k">def</span> <span class="nf">marker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sample_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">endtime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplefreq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">starttime</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">endtime</span><span class="p">,</span>
+                    <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">samplefreq</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">starttime</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">endtime</span><span class="p">,</span>
+                    <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">endtime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span></div>
+
+
+<div class="viewcode-block" id="GrabSample"><a class="viewcode-back" href="../../api/samples.html#wqio.samples.GrabSample">[docs]</a><span class="k">class</span> <span class="nc">GrabSample</span><span class="p">(</span><span class="n">_basic_wq_sample</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Class for grab (discrete) samples &quot;&quot;&quot;</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="s1">&#39;Grab Sample&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_label</span>
+    <span class="nd">@label.setter</span>
+    <span class="k">def</span> <span class="nf">label</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_label</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">marker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="o">=</span> <span class="s1">&#39;+&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span>
+    <span class="nd">@marker.setter</span>
+    <span class="k">def</span> <span class="nf">marker</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_marker</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sample_ts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">endtime</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">starttime</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span>
+                    <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">starttime</span><span class="p">,</span>
+                    <span class="n">end</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">endtime</span><span class="p">,</span>
+                    <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">endtime</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sample_ts</span></div>
+
+<span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">version_info</span><span class="o">.</span><span class="n">major</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+    <span class="n">_basic_wq_sample</span><span class="o">.</span><span class="n">__doc__</span>  <span class="o">=</span> <span class="n">_basic_doc</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Basic&quot;</span><span class="p">)</span>
+    <span class="n">CompositeSample</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">_basic_doc</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Composite&quot;</span><span class="p">)</span>
+    <span class="n">GrabSample</span><span class="o">.</span><span class="n">__doc__</span> <span class="o">=</span> <span class="n">_basic_doc</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Grab&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

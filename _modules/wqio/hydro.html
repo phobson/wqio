@@ -1,0 +1,1152 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wqio.hydro &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Statisical APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>wqio.hydro</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for wqio.hydro</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.dates</span> <span class="kn">as</span> <span class="nn">mdates</span>
+<span class="kn">import</span> <span class="nn">matplotlib.gridspec</span> <span class="kn">as</span> <span class="nn">gridspec</span>
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="kn">as</span> <span class="nn">mpatches</span>
+<span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="kn">as</span> <span class="nn">mlines</span>
+<span class="kn">import</span> <span class="nn">seaborn.apionly</span> <span class="kn">as</span> <span class="nn">seaborn</span>
+<span class="kn">import</span> <span class="nn">pandas</span>
+
+<span class="kn">from</span> <span class="nn">wqio</span> <span class="kn">import</span> <span class="n">utils</span>
+
+<span class="n">SEC_PER_MINUTE</span> <span class="o">=</span> <span class="mf">60.</span>
+<span class="n">MIN_PER_HOUR</span> <span class="o">=</span> <span class="mf">60.</span>
+<span class="n">HOUR_PER_DAY</span> <span class="o">=</span> <span class="mf">24.</span>
+<span class="n">SEC_PER_HOUR</span> <span class="o">=</span> <span class="n">SEC_PER_MINUTE</span> <span class="o">*</span> <span class="n">MIN_PER_HOUR</span>
+<span class="n">SEC_PER_DAY</span> <span class="o">=</span> <span class="n">SEC_PER_HOUR</span> <span class="o">*</span> <span class="n">HOUR_PER_DAY</span>
+
+
+<div class="viewcode-block" id="Storm"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.Storm">[docs]</a><span class="k">class</span> <span class="nc">Storm</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Object representing a storm event</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataframe : pandas.DataFrame</span>
+<span class="sd">        A datetime-indexed Dataframe containing all of the hydrologic</span>
+<span class="sd">        data and am interger column indentifying distinct storms.</span>
+<span class="sd">    stormnumber : int</span>
+<span class="sd">        The storm we care about.</span>
+<span class="sd">    precipcol, inflowcol, outflow, tempcol, stormcol : string, optional</span>
+<span class="sd">        Names for columns representing each hydrologic quantity.</span>
+<span class="sd">    freqMinutes : float (default = 5)</span>
+<span class="sd">        The time period, in minutes, between observations.</span>
+<span class="sd">    volume_conversion : float, optional (default = 1)</span>
+<span class="sd">        Conversion factor to go from flow to volume for a single</span>
+<span class="sd">        observation.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># TODO: rename freqMinutes to periodMinutes</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dataframe</span><span class="p">,</span> <span class="n">stormnumber</span><span class="p">,</span> <span class="n">precipcol</span><span class="o">=</span><span class="s1">&#39;precip&#39;</span><span class="p">,</span>
+                 <span class="n">inflowcol</span><span class="o">=</span><span class="s1">&#39;inflow&#39;</span><span class="p">,</span> <span class="n">outflowcol</span><span class="o">=</span><span class="s1">&#39;outflow&#39;</span><span class="p">,</span>
+                 <span class="n">tempcol</span><span class="o">=</span><span class="s1">&#39;temp&#39;</span><span class="p">,</span> <span class="n">stormcol</span><span class="o">=</span><span class="s1">&#39;storm&#39;</span><span class="p">,</span> <span class="n">freqMinutes</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">volume_conversion</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span> <span class="o">=</span> <span class="n">inflowcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span> <span class="o">=</span> <span class="n">outflowcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span> <span class="o">=</span> <span class="n">precipcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempcol</span> <span class="o">=</span> <span class="n">tempcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stormnumber</span> <span class="o">=</span> <span class="n">stormnumber</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freqMinutes</span> <span class="o">=</span> <span class="n">freqMinutes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume_conversion</span> <span class="o">=</span> <span class="n">volume_conversion</span> <span class="o">*</span> <span class="n">SEC_PER_MINUTE</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqMinutes</span>
+
+        <span class="c1"># basic data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">dataframe</span><span class="p">[</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormnumber</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydrofreq_label</span> <span class="o">=</span> <span class="s1">&#39;{0} min&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">freqMinutes</span><span class="p">)</span>
+
+        <span class="c1"># tease out start/stop info</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_season</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">getSeason</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+
+        <span class="c1"># storm duration (hours)</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">duration_hours</span> <span class="o">=</span> <span class="n">duration</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="n">SEC_PER_HOUR</span>
+
+        <span class="c1"># antecedent dry period (hours)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormnumber</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">prev_storm_mask</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormnumber</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">previous_end</span> <span class="o">=</span> <span class="n">dataframe</span><span class="p">[</span><span class="n">prev_storm_mask</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">antecedent_timedelta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">-</span> <span class="n">previous_end</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">antecedent_period_days</span> <span class="o">=</span> <span class="n">antecedent_timedelta</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="n">SEC_PER_DAY</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">antecedent_period_days</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="c1"># quantities</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_precip</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inflow</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outflow</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># starts and stop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_precip_start</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_precip_end</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_start</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_end</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_start</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_end</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># peaks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># times of peaks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_peak_lag_hours</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># centroids</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_precip_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_inflow_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_outflow_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_lag_hours</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c1"># totals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_precip_depth</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_inflow_volume</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_total_outflow_volume</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Flow (calculated, L/s)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ylabel&#39;</span><span class="p">:</span> <span class="s1">&#39;Effluent flow (L/s)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;CornFlowerBlue&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;linewidth&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+                <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s1">&#39;ymin&#39;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Inflow (estimated, L/s)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ylabel&#39;</span><span class="p">:</span> <span class="s1">&#39;Estimated influent flow (L/s)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;Maroon&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;linewidth&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+                <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s1">&#39;ymin&#39;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Precip (mm)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ylabel&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> Precip.</span><span class="se">\n</span><span class="s1">Depth (mm)&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrofreq_label</span><span class="p">,</span>
+                <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;DarkGreen&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;linewidth&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+                <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+                <span class="s1">&#39;ymin&#39;</span><span class="p">:</span> <span class="mi">0</span>
+            <span class="p">},</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tempcol</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Air Temp (deg C)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;ylabel&#39;</span><span class="p">:</span> <span class="s1">&#39;Air Temperature (deg. C)&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;DarkGoldenRod&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;linewidth&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+                <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s1">&#39;ymin&#39;</span><span class="p">:</span> <span class="bp">None</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1"># summaries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_summary_dict</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="c1"># quantities</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">precip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precip</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_precip</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_precip</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precip</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflow</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_inflow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_inflow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflow</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outflow</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_outflow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_outflow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outflow</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_precip</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">precip</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_inflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">has_outflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflow</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">season</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_season</span>
+    <span class="nd">@season.setter</span>
+    <span class="k">def</span> <span class="nf">season</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_season</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1"># starts and stops</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">precip_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precip_start</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_precip_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precip_start</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">precip_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precip_end</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_precip_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_precip_end</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inflow_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_start</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_start</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inflow_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_end</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_inflow_end</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outflow_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_start</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_outflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_start</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">outflow_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_end</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_outflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_outflow_end</span>
+
+    <span class="c1"># peaks</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_peak_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">precip</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_precip_intensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_depth</span> <span class="o">*</span> <span class="n">MIN_PER_HOUR</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">freqMinutes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_inflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflow</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_outflow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_outflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflow</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow</span>
+
+    <span class="c1"># totals</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_precip_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_precip_depth</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_total_precip_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_precip_depth</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_inflow_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_inflow_volume</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_total_inflow_volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_conversion</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_inflow_volume</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_outflow_volume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_outflow_volume</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_outflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_total_outflow_volume</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_conversion</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_outflow_volume</span>
+
+    <span class="c1"># centroids</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centroid_precip_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_precip_time</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_precip_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_centroid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_precip_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centroid_inflow_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_inflow_time</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_inflow_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_centroid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_inflow_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centroid_outflow_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_outflow_time</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_outflow</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_outflow_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_centroid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_outflow_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">centroid_lag_hours</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_centroid_lag_hours</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">centroid_outflow_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">centroid_inflow_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_lag_hours</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">centroid_outflow_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid_inflow_time</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="n">SEC_PER_HOUR</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_centroid_lag_hours</span>
+
+    <span class="c1">#times</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_precip_intensity_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity_time</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_precip</span><span class="p">:</span>
+            <span class="n">PI_selector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_depth</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">PI_selector</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_precip_intensity_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_inflow_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow_time</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_inflow</span><span class="p">:</span>
+            <span class="n">PInf_selector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_inflow</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">PInf_selector</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_inflow_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_outflow_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow_time</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_outflow</span><span class="p">:</span>
+            <span class="n">PEff_selector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_outflow</span>
+            <span class="k">if</span> <span class="n">PEff_selector</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">PEff_selector</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_outflow_time</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">peak_lag_hours</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_peak_lag_hours</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">peak_outflow_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">peak_inflow_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">):</span>
+
+            <span class="n">time_delta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_outflow_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_inflow_time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_peak_lag_hours</span> <span class="o">=</span> <span class="n">time_delta</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="n">SEC_PER_HOUR</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_peak_lag_hours</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">summary_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_dict</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_summary_dict</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;Storm Number&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormnumber</span><span class="p">,</span>
+                <span class="s1">&#39;Antecedent Days&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">antecedent_period_days</span><span class="p">,</span>
+                <span class="s1">&#39;Start Date&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                <span class="s1">&#39;End Date&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+                <span class="s1">&#39;Duration Hours&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">duration_hours</span><span class="p">,</span>
+                <span class="s1">&#39;Peak Precip Intensity&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_precip_intensity</span><span class="p">,</span>
+                <span class="s1">&#39;Total Precip Depth&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_precip_depth</span><span class="p">,</span>
+                <span class="s1">&#39;Total Inflow Volume&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_inflow_volume</span><span class="p">,</span>
+                <span class="s1">&#39;Peak Inflow&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_inflow</span><span class="p">,</span>
+                <span class="s1">&#39;Total Outflow Volume&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_outflow_volume</span><span class="p">,</span>
+                <span class="s1">&#39;Peak Outflow&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_outflow</span><span class="p">,</span>
+                <span class="s1">&#39;Peak Lag Hours&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">peak_lag_hours</span><span class="p">,</span>
+                <span class="s1">&#39;Centroid Lag Hours&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid_lag_hours</span><span class="p">,</span>
+                <span class="s1">&#39;Season&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">season</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summary_dict</span>
+
+<div class="viewcode-block" id="Storm.is_small"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.Storm.is_small">[docs]</a>    <span class="k">def</span> <span class="nf">is_small</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">minprecip</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">mininflow</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">minoutflow</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Determines whether a storm can be considered &quot;small&quot;.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        minprecip, mininflow, minoutflow : float, optional (default = 0)</span>
+<span class="sd">            The minimum amount of each hydrologic quantity below which a</span>
+<span class="sd">            storm can be considered &quot;small&quot;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        storm_is_small : bool</span>
+<span class="sd">            True if the storm is considered small.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">storm_is_small</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_precip_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_precip_depth</span> <span class="o">&lt;</span> <span class="n">minprecip</span><span class="p">)</span> <span class="ow">or</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_inflow_volume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_inflow_volume</span> <span class="o">&lt;</span> <span class="n">mininflow</span><span class="p">)</span> <span class="ow">or</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_outflow_volume</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_outflow_volume</span> <span class="o">&lt;</span> <span class="n">minoutflow</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">storm_is_small</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_event_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">,</span> <span class="n">bound</span><span class="p">):</span>
+        <span class="n">index_map</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+        <span class="n">quantity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">quantity</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Storm has no {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">column</span><span class="p">),</span> <span class="ne">UserWarning</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">quantity</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">index_map</span><span class="p">[</span><span class="n">bound</span><span class="p">]]</span>
+
+    <span class="k">def</span> <span class="nf">_get_max_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_compute_centroid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+        <span class="c1"># ordinal time index of storm</span>
+        <span class="n">time_idx</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">mdates</span><span class="o">.</span><span class="n">date2num</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">())</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="n">centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">*</span> <span class="n">time_idx</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">centroid</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pandas</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">num2date</span><span class="p">(</span><span class="n">centroid</span><span class="p">))</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_plot_centroids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">yfactor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+
+        <span class="n">artists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">y_val</span> <span class="o">=</span> <span class="n">yfactor</span><span class="o">*</span><span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid_precip</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">centroid_precip</span><span class="p">],</span> <span class="p">[</span><span class="n">y_val</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;DarkGreen&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span>
+                    <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+            <span class="n">artists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                           <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;DarkGreen&#39;</span><span class="p">))</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Precip. centroid&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid_flow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">centroid_flow</span><span class="p">],</span> <span class="p">[</span><span class="n">y_val</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;CornflowerBlue&#39;</span><span class="p">,</span>
+                    <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+            <span class="n">artists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span>
+                           <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;CornflowerBlue&#39;</span><span class="p">))</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;Effluent centroid&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid_precip</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">centroid_flow</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centroid_flow</span><span class="p">,</span> <span class="n">y_val</span><span class="p">),</span>
+                        <span class="n">arrowprops</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">arrowstyle</span><span class="o">=</span><span class="s2">&quot;-|&gt;&quot;</span><span class="p">),</span>
+                        <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">centroid_precip</span><span class="p">,</span> <span class="n">y_val</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">artists</span><span class="p">,</span> <span class="n">labels</span>
+
+<div class="viewcode-block" id="Storm.plot_hydroquantity"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.Storm.plot_hydroquantity">[docs]</a>    <span class="k">def</span> <span class="nf">plot_hydroquantity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantity</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                           <span class="n">otherlabels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">artists</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Draws a hydrologic quantity to a matplotlib axes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        quantity : string</span>
+<span class="sd">            Column name of the quantity you want to plot.</span>
+<span class="sd">        ax : matplotlib axes object, optional</span>
+<span class="sd">            The axes on which the data will be plotted. If None, a new</span>
+<span class="sd">            one will be created.</span>
+<span class="sd">        label : string, optional</span>
+<span class="sd">            How the series should be labeled in the figure legend.</span>
+<span class="sd">        otherlabels : list of strings, optional</span>
+<span class="sd">            A list of other legend labels that have already been plotted</span>
+<span class="sd">            to ``ax``. If provided, ``label`` will be appended. If not</span>
+<span class="sd">            provided, and new list will be created.</span>
+<span class="sd">        artists : list of matplotlib artists, optional</span>
+<span class="sd">            A list of other legend items that have already been plotted</span>
+<span class="sd">            to ``ax``. If provided, the artist created will be appended.</span>
+<span class="sd">            If not provided, and new list will be created.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.Figure</span>
+<span class="sd">            The figure containing the plot.</span>
+<span class="sd">        labels : list of strings</span>
+<span class="sd">            Labels to be included in a legend for the figure.</span>
+<span class="sd">        artists : list of matplotlib artists</span>
+<span class="sd">            Symbology for the figure legend.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># setup the figure</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">figure</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">quantity</span>
+
+
+        <span class="c1"># select the plot props based on the column</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> not available&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quantity</span><span class="p">))</span>
+
+
+        <span class="c1"># plot the data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">quantity</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;area&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span>
+                                           <span class="n">alpha</span><span class="o">=</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">artists</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">proxy</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">(</span>
+                <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;color&#39;</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">artists</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">otherlabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">otherlabels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">otherlabels</span><span class="p">,</span> <span class="n">artists</span></div>
+
+<div class="viewcode-block" id="Storm.summaryPlot"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.Storm.summaryPlot">[docs]</a>    <span class="k">def</span> <span class="nf">summaryPlot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">axratio</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">showLegend</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                    <span class="n">precip</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">inflow</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">outflow</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">figopts</span><span class="o">=</span><span class="p">{},</span>
+                    <span class="n">serieslabels</span><span class="o">=</span><span class="p">{}):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Creates a figure showing the hydrlogic record (flow and</span>
+<span class="sd">            precipitation) of the storm</span>
+
+<span class="sd">        Input:</span>
+<span class="sd">            axratio : optional float or int (default = 2)</span>
+<span class="sd">                Relative height of the flow axis compared to the</span>
+<span class="sd">                precipiation axis.</span>
+
+<span class="sd">            filename : optional string (default = None)</span>
+<span class="sd">                Filename to which the figure will be saved.</span>
+
+<span class="sd">            **figwargs will be passed on to `plt.Figure`</span>
+
+<span class="sd">        Writes:</span>
+<span class="sd">            Figure of flow and precipitation for a storm</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="o">**</span><span class="n">figopts</span><span class="p">)</span>
+        <span class="n">gs</span> <span class="o">=</span> <span class="n">gridspec</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">axratio</span><span class="p">],</span>
+                               <span class="n">hspace</span><span class="o">=</span><span class="mf">0.12</span><span class="p">)</span>
+        <span class="n">rainax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">rainax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">MaxNLocator</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+        <span class="n">flowax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">sharex</span><span class="o">=</span><span class="n">rainax</span><span class="p">)</span>
+
+        <span class="c1"># create the legend proxy artists</span>
+        <span class="n">artists</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">legcols</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># in the label assignment: `serieslabels.pop(item, item)` might</span>
+        <span class="c1"># seem odd. What it does is looks for a label (value) in the</span>
+        <span class="c1"># dictionary with the key equal to `item`. If there is no valur</span>
+        <span class="c1"># for that key in the dictionary the `item` itself is returned.</span>
+        <span class="c1"># so if there&#39;s nothing called &quot;test&quot; in mydict,</span>
+        <span class="c1"># `mydict.pop(&quot;test&quot;, &quot;test&quot;)` returns `&quot;test&quot;`.</span>
+        <span class="k">if</span> <span class="n">inflow</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">artists</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_hydroquantity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">flowax</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">serieslabels</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">),</span>
+                <span class="n">otherlabels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                <span class="n">artists</span><span class="o">=</span><span class="n">artists</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">outflow</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">arti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_hydroquantity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">flowax</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">serieslabels</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">),</span>
+                <span class="n">otherlabels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                <span class="n">artists</span><span class="o">=</span><span class="n">artists</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">precip</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">arti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plot_hydroquantity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">rainax</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">serieslabels</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">),</span>
+                <span class="n">otherlabels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span>
+                <span class="n">artists</span><span class="o">=</span><span class="n">artists</span>
+            <span class="p">)</span>
+            <span class="n">rainax</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">showLegend</span><span class="p">:</span>
+            <span class="n">leg</span> <span class="o">=</span> <span class="n">rainax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">artists</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                                <span class="n">markerscale</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                                <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;lower right&#39;</span><span class="p">)</span>
+            <span class="n">leg</span><span class="o">.</span><span class="n">get_frame</span><span class="p">()</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">25</span><span class="p">)</span>
+            <span class="n">_leg</span> <span class="o">=</span> <span class="p">[</span><span class="n">leg</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_leg</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+        <span class="n">seaborn</span><span class="o">.</span><span class="n">despine</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">rainax</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">seaborn</span><span class="o">.</span><span class="n">despine</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">flowax</span><span class="p">)</span>
+        <span class="n">flowax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">rainax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="c1"># grid lines and axis background color and layout</span>
+        <span class="c1">#fig.tight_layout()</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">transparent</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                        <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">bbox_extra_artists</span><span class="o">=</span><span class="n">_leg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">artists</span><span class="p">,</span> <span class="n">labels</span></div></div>
+
+
+<div class="viewcode-block" id="HydroRecord"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.HydroRecord">[docs]</a><span class="k">class</span> <span class="nc">HydroRecord</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Class representing an entire hydrologic record.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hydrodata : pandas.DataFrame</span>
+<span class="sd">        DataFrame of hydrologic data of the storm. Should contain</span>
+<span class="sd">        a unique index of type pandas.DatetimeIndex.</span>
+<span class="sd">    precipcol : string, optional (default = None)</span>
+<span class="sd">        Name of column in `hydrodata` containing precipiation data.</span>
+<span class="sd">    inflowcol : string, optional (default = None)</span>
+<span class="sd">        Name of column in `hydrodata` containing influent flow data.</span>
+<span class="sd">    outflowcol : string, optional (default = None)</span>
+<span class="sd">        Name of column in `hydrodata` containing effluent flow data.</span>
+<span class="sd">    stormcol : string (default = &#39;storm&#39;)</span>
+<span class="sd">        Name of column in `hydrodata` indentifying distinct storms.</span>
+<span class="sd">    minprecip, mininflow, minoutflow : float, optional (default = 0)</span>
+<span class="sd">        The minimum amount of each hydrologic quantity below which a</span>
+<span class="sd">        storm can be considered &quot;small&quot;.</span>
+<span class="sd">    outputfreqMinutes : int, optional (default = 10)</span>
+<span class="sd">        The default frequency (minutes) to which all data will be</span>
+<span class="sd">        resampled. Precipitation data will be summed up across &#39;</span>
+<span class="sd">        multiple timesteps during resampling, while flow will be</span>
+<span class="sd">        averaged.</span>
+<span class="sd">    intereventHours : int, optional (default = 6)</span>
+<span class="sd">        The dry duration (no flow or rain) required to signal the end of</span>
+<span class="sd">        a storm.</span>
+<span class="sd">    volume_conversion : float, optional (default = 1)</span>
+<span class="sd">        Conversion factor to go from flow to volume for a single</span>
+<span class="sd">        observation.</span>
+<span class="sd">    stormclass : object, optional</span>
+<span class="sd">        Defaults to wqio.hydro.Storm. Can be a subclass of that in cases</span>
+<span class="sd">        where custom functionality is needed.</span>
+<span class="sd">    lowmem : bool (default = False)</span>
+<span class="sd">        If True, all dry observations are removed from the dataframe.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># TODO: rename `outputfreqMinutes` to `outputPeriodMinutes`</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hydrodata</span><span class="p">,</span> <span class="n">precipcol</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">inflowcol</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">outflowcol</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">tempcol</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">stormcol</span><span class="o">=</span><span class="s1">&#39;storm&#39;</span><span class="p">,</span>
+                 <span class="n">minprecip</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">mininflow</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">minoutflow</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+                 <span class="n">outputfreqMinutes</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">intereventHours</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                 <span class="n">volume_conversion</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">stormclass</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lowmem</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+
+        <span class="c1"># validate input</span>
+        <span class="k">if</span> <span class="n">precipcol</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">inflowcol</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">outflowcol</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;`hydrodata` must have at least a precip or in/outflow column&#39;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">stormclass</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stormclass</span> <span class="o">=</span> <span class="n">Storm</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stormclass</span> <span class="o">=</span> <span class="n">stormclass</span>
+
+        <span class="c1"># static input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span> <span class="o">=</span> <span class="n">hydrodata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span> <span class="o">=</span> <span class="n">precipcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span> <span class="o">=</span> <span class="n">inflowcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span> <span class="o">=</span> <span class="n">outflowcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span> <span class="o">=</span> <span class="n">stormcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tempcol</span> <span class="o">=</span> <span class="n">tempcol</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">outputfreq</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">Minute</span><span class="p">(</span><span class="n">outputfreqMinutes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intereventHours</span> <span class="o">=</span> <span class="n">intereventHours</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intereventPeriods</span> <span class="o">=</span> <span class="n">MIN_PER_HOUR</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">outputfreq</span><span class="o">.</span><span class="n">n</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">intereventHours</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minprecip</span> <span class="o">=</span> <span class="n">minprecip</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mininflow</span> <span class="o">=</span> <span class="n">mininflow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">minoutflow</span> <span class="o">=</span> <span class="n">minoutflow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume_conversion</span> <span class="o">=</span> <span class="n">volume_conversion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lowmem</span> <span class="o">=</span> <span class="n">lowmem</span>
+
+        <span class="c1"># properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_all_storms</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storms</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_storm_stats</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_define_storms</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lowmem</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_storms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_storms</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_all_storms</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">storm_number</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">storm_number</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">this_storm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormclass</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">storm_number</span><span class="p">,</span> <span class="n">precipcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span><span class="p">,</span>
+                        <span class="n">inflowcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span><span class="p">,</span> <span class="n">outflowcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span><span class="p">,</span>
+                        <span class="n">tempcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">tempcol</span><span class="p">,</span> <span class="n">stormcol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">,</span>
+                        <span class="n">volume_conversion</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">volume_conversion</span><span class="p">,</span>
+                        <span class="n">freqMinutes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">outputfreq</span><span class="o">.</span><span class="n">n</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_all_storms</span><span class="p">[</span><span class="n">storm_number</span><span class="p">]</span> <span class="o">=</span> <span class="n">this_storm</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_storms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">storms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storms</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_storms</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">snum</span><span class="p">,</span> <span class="n">storm</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_storms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">is_small</span> <span class="o">=</span> <span class="n">storm</span><span class="o">.</span><span class="n">is_small</span><span class="p">(</span>
+                    <span class="n">minprecip</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minprecip</span><span class="p">,</span>
+                    <span class="n">mininflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mininflow</span><span class="p">,</span>
+                    <span class="n">minoutflow</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">minoutflow</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">is_small</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_storms</span><span class="p">[</span><span class="n">snum</span><span class="p">]</span> <span class="o">=</span> <span class="n">storm</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storms</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">storm_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">col_order</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;Storm Number&#39;</span><span class="p">,</span> <span class="s1">&#39;Antecedent Days&#39;</span><span class="p">,</span> <span class="s1">&#39;Season&#39;</span><span class="p">,</span> <span class="s1">&#39;Start Date&#39;</span><span class="p">,</span> <span class="s1">&#39;End Date&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Duration Hours&#39;</span><span class="p">,</span> <span class="s1">&#39;Peak Precip Intensity&#39;</span><span class="p">,</span> <span class="s1">&#39;Total Precip Depth&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Total Inflow Volume&#39;</span><span class="p">,</span> <span class="s1">&#39;Peak Inflow&#39;</span><span class="p">,</span> <span class="s1">&#39;Total Outflow Volume&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Peak Outflow&#39;</span><span class="p">,</span> <span class="s1">&#39;Peak Lag Hours&#39;</span><span class="p">,</span> <span class="s1">&#39;Centroid Lag Hours&#39;</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storm_stats</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">storm_stats</span> <span class="o">=</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">storms</span><span class="p">[</span><span class="n">sn</span><span class="p">]</span><span class="o">.</span><span class="n">summary_dict</span> <span class="k">for</span> <span class="n">sn</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">storms</span>
+            <span class="p">])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_storm_stats</span> <span class="o">=</span> <span class="n">storm_stats</span><span class="p">[</span><span class="n">col_order</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_storm_stats</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Storm Number&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_define_storms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Parses the hydrologic data into distinct storms. In this</span>
+<span class="sd">        context, a storm is defined as starting whenever the hydrologic</span>
+<span class="sd">        records shows non-zero precipitation or [in|out]flow from the</span>
+<span class="sd">        BMP after a minimum inter-event dry period duration specified</span>
+<span class="sd">        in the the function call.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        debug : bool (default = False)</span>
+<span class="sd">            If True, diagnostic columns will not be dropped prior to</span>
+<span class="sd">            returning the dataframe of parsed_storms.</span>
+
+<span class="sd">        Writes</span>
+<span class="sd">        ------</span>
+<span class="sd">        None</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        parsed_storms : pandas.DataFrame</span>
+<span class="sd">            Copy of the origin `hydrodata` DataFrame, but resmapled to</span>
+<span class="sd">            a fixed frequency, columns possibly renamed, and a `storm`</span>
+<span class="sd">            column added to denote the storm to which each record</span>
+<span class="sd">            belongs. Records where `storm` == 0 are not a part of any</span>
+<span class="sd">            storm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_raw_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># pull out the rain and flow data</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">precipcol</span> <span class="o">=</span> <span class="s1">&#39;precip&#39;</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">precipcol</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">precipcol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">precipcol</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">inflowcol</span> <span class="o">=</span> <span class="s1">&#39;inflow&#39;</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">inflowcol</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">inflowcol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">inflowcol</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">outflowcol</span> <span class="o">=</span> <span class="s1">&#39;outflow&#39;</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">outflowcol</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">outflowcol</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">outflowcol</span>
+
+        <span class="c1"># bool column where True means there&#39;s rain or flow of some kind</span>
+        <span class="n">water_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">precipcol</span><span class="p">,</span> <span class="n">inflowcol</span><span class="p">,</span> <span class="n">outflowcol</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">wet</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">water_columns</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">windiff</span><span class="o">=</span><span class="k">lambda</span> <span class="n">df</span><span class="p">:</span>
+                    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;wet&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intereventPeriods</span><span class="p">),</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">w</span><span class="p">:</span> <span class="n">w</span><span class="o">.</span><span class="n">any</span><span class="p">())</span>
+                        <span class="o">.</span><span class="n">diff</span><span class="p">())</span>
+                <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">event_start</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">event_end</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="p">)</span>
+        <span class="c1"># # copy the bool column into its own df and add a bunch</span>
+        <span class="c1"># # shifted columns so each row looks backwards and forwards</span>
+        <span class="n">firstrow</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">firstrow</span><span class="p">[</span><span class="s1">&#39;wet&#39;</span><span class="p">]:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">firstrow</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;windiff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;windiff&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">starts</span><span class="p">,</span> <span class="s1">&#39;event_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="n">stops</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;windiff&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">intereventPeriods</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stops</span><span class="p">,</span> <span class="s1">&#39;event_end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c1"># initialize the new column as zeros</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># each time a storm starts, incriment the storm number + 1</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;event_start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+
+        <span class="c1"># periods between storms are where the cumulative number</span>
+        <span class="c1"># of storms that have ended are equal to the cumulative</span>
+        <span class="c1"># number of storms that have started.</span>
+        <span class="c1"># Stack Overflow: http://tinyurl.com/lsjkr9x</span>
+        <span class="n">nostorm</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">==</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;event_end&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">nostorm</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="n">cols_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;wet&#39;</span><span class="p">,</span> <span class="s1">&#39;windiff&#39;</span><span class="p">,</span> <span class="s1">&#39;event_end&#39;</span><span class="p">,</span> <span class="s1">&#39;event_start&#39;</span><span class="p">]</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">cols_to_drop</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span>
+
+<div class="viewcode-block" id="HydroRecord.getStormFromTimestamp"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.HydroRecord.getStormFromTimestamp">[docs]</a>    <span class="k">def</span> <span class="nf">getStormFromTimestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timestamp</span><span class="p">,</span> <span class="n">lookback_hours</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">smallstorms</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Get the storm associdated with a give (sample) date</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        timestamp : pandas.Timestamp</span>
+<span class="sd">            The date/time for which to search within the hydrologic</span>
+<span class="sd">            record.</span>
+<span class="sd">        lookback_hours : positive int or float, optional (default = 0)</span>
+<span class="sd">            If no storm is actively occuring at the provided timestamp,</span>
+<span class="sd">            we can optionally look backwards in the hydrologic record a</span>
+<span class="sd">            fixed amount of time (specified in hours). Negative values</span>
+<span class="sd">            are ignored.</span>
+<span class="sd">        smallstorms : bool, optional (default = False)</span>
+<span class="sd">            If True, small storms will be included in the search.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        storm_number : int</span>
+<span class="sd">        storm : wqio.Storm</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># santize date input</span>
+        <span class="n">timestamp</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">santizeTimestamp</span><span class="p">(</span><span class="n">timestamp</span><span class="p">)</span>
+
+        <span class="c1"># check lookback hours</span>
+        <span class="k">if</span> <span class="n">lookback_hours</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`lookback_hours` must be greater than 0&#39;</span><span class="p">)</span>
+
+        <span class="c1"># initial search for the storm</span>
+        <span class="n">storm_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">timestamp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># look backwards if we have too</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">storm_number</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">pandas</span><span class="o">.</span><span class="n">isnull</span><span class="p">(</span><span class="n">storm_number</span><span class="p">))</span> <span class="ow">and</span> <span class="n">lookback_hours</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">lookback_time</span> <span class="o">=</span> <span class="n">timestamp</span> <span class="o">-</span> <span class="n">pandas</span><span class="o">.</span><span class="n">offsets</span><span class="o">.</span><span class="n">Hour</span><span class="p">(</span><span class="n">lookback_hours</span><span class="p">)</span>
+            <span class="n">storms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">lookback_time</span><span class="p">:</span><span class="n">timestamp</span><span class="p">,</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">stormcol</span><span class="p">]]</span>
+            <span class="n">storms</span> <span class="o">=</span> <span class="n">storms</span><span class="p">[</span><span class="n">storms</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">storms</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># no storm</span>
+                <span class="n">storm_number</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># storm w/i the lookback period</span>
+                <span class="n">storm_number</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">storms</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># return storm_number and storms</span>
+        <span class="k">if</span> <span class="n">smallstorms</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">storm_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_storms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">storm_number</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">storm_number</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">storms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">storm_number</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="HydroRecord.histogram"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.HydroRecord.histogram">[docs]</a>    <span class="k">def</span> <span class="nf">histogram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valuecol</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="o">**</span><span class="n">factoropts</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Plot a faceted, categorical histogram of storms.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        valuecol : str, optional</span>
+<span class="sd">            The name of the column that should be categorized and plotted.</span>
+<span class="sd">        bins : array-like, optional</span>
+<span class="sd">            The right-edges of the histogram bins.</span>
+<span class="sd">        factoropts : keyword arguments, optional</span>
+<span class="sd">            Options passed directly to seaborn.factorplot</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : seaborn.FacetGrid</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        utils.figutils.categorical_histogram</span>
+<span class="sd">        seaborn.factorplot</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">fg</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">figutils</span><span class="o">.</span><span class="n">categorical_histogram</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">storm_stats</span><span class="p">,</span> <span class="n">valuecol</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="o">**</span><span class="n">factoropts</span>
+        <span class="p">)</span>
+        <span class="n">fg</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">fg</span></div></div>
+
+
+<div class="viewcode-block" id="DrainageArea"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.DrainageArea">[docs]</a><span class="k">class</span> <span class="nc">DrainageArea</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">total_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">imp_area</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">bmp_area</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; A simple object representing the drainage area of a BMP.</span>
+
+<span class="sd">        Units are not enforced, so keep them consistent yourself. The</span>
+<span class="sd">        calculations available assume that the area of the BMP and the</span>
+<span class="sd">        &quot;total&quot; area are mutually exclusive. In other words,</span>
+<span class="sd">        the watershed outlet is at the BMP inlet.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        total_area : float, optional (default = 1.0)</span>
+<span class="sd">            The total geometric area of the BMP&#39;s catchment</span>
+<span class="sd">        imp_area : float, optional (default = 1.0)</span>
+<span class="sd">            The impervious area of the BMP&#39;s catchment</span>
+<span class="sd">        bmp_area : float, optional (default = 0.0)</span>
+<span class="sd">            The geometric area of the BMP itself.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_area</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_area</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imp_area</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">imp_area</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bmp_area</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">bmp_area</span><span class="p">)</span>
+
+<div class="viewcode-block" id="DrainageArea.simple_method"><a class="viewcode-back" href="../../api/hydro.html#wqio.hydro.DrainageArea.simple_method">[docs]</a>    <span class="k">def</span> <span class="nf">simple_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">storm_depth</span><span class="p">,</span> <span class="n">volume_conversion</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">annualFactor</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate runoff volume via Bob Pitt&#39;s Simple Method.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        storm_depth : float</span>
+<span class="sd">            Depth of the storm.</span>
+<span class="sd">        volume_conversion : float, optional (default = 1.0)</span>
+<span class="sd">            Conversion factor to go from [area units] * [depth units] to</span>
+<span class="sd">            the desired [volume units]. If [area] = m^2, [depth] = mm,</span>
+<span class="sd">            and [volume] = L, then `volume_conversion` = 1.</span>
+<span class="sd">        annualFactor : float, optional (default = 1.0)</span>
+<span class="sd">            The Simple Method&#39;s annual correction factor to account for</span>
+<span class="sd">            small storms that do not produce runoff.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        runoff_volume : float</span>
+<span class="sd">            The volume of water entering the BMP immediately downstream</span>
+<span class="sd">            of the drainage area.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># volumetric run off coneffiecient</span>
+        <span class="n">Rv</span> <span class="o">=</span> <span class="mf">0.05</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.9</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">imp_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_area</span><span class="p">))</span>
+
+        <span class="c1"># run per unit storm depth</span>
+        <span class="n">drainage_conversion</span> <span class="o">=</span> <span class="n">Rv</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_area</span> <span class="o">*</span> <span class="n">volume_conversion</span>
+        <span class="n">bmp_conversion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bmp_area</span> <span class="o">*</span> <span class="n">volume_conversion</span>
+
+        <span class="c1"># total runoff based on actual storm depth</span>
+        <span class="n">runoff_volume</span> <span class="o">=</span> <span class="p">(</span><span class="n">drainage_conversion</span> <span class="o">*</span> <span class="n">annualFactor</span> <span class="o">+</span> <span class="n">bmp_conversion</span><span class="p">)</span> <span class="o">*</span> <span class="n">storm_depth</span>
+        <span class="k">return</span> <span class="n">runoff_volume</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

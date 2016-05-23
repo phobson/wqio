@@ -1,0 +1,378 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>wqio.bootstrap &mdash; wqio 0.4.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="wqio 0.4.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> wqio
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.4.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../include_readme.html">wqio - Water Quality, Inflow/Outflow</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Statisical APIs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html#water-quality-and-hydrology-apis">Water Quality and Hydrology APIs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">wqio</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>wqio.bootstrap</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for wqio.bootstrap</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="kn">as</span> <span class="nn">stats</span>
+<span class="kn">import</span> <span class="nn">scipy.stats.distributions</span> <span class="kn">as</span> <span class="nn">dist</span>
+<span class="kn">import</span> <span class="nn">scipy.optimize</span> <span class="kn">as</span> <span class="nn">opt</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;BCA&#39;</span><span class="p">,</span> <span class="s1">&#39;percentile&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Compute the acceleration statistic.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array-like</span>
+<span class="sd">        Sequence of values whose acceleration will be computed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    acc : float</span>
+<span class="sd">        The acceleration statistic.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># intermediate values</span>
+    <span class="n">SSD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">data</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">SCD</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">data</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># dodge the ZeroDivision error</span>
+    <span class="k">if</span> <span class="n">SCD</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">SCD</span> <span class="o">=</span> <span class="mf">1e-12</span>
+
+    <span class="c1"># compute and return the acceleration</span>
+    <span class="n">acc</span> <span class="o">=</span> <span class="n">SSD</span> <span class="o">/</span> <span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="n">SCD</span><span class="o">**</span><span class="mf">1.5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">acc</span>
+
+
+<span class="k">def</span> <span class="nf">_make_boot_index</span><span class="p">(</span><span class="n">elements</span><span class="p">,</span> <span class="n">niter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Generate an array of bootstrap sample sets</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elements : int</span>
+<span class="sd">        The number of rows in the original dataset.</span>
+<span class="sd">    niter : int</span>
+<span class="sd">        Number of iteration for the bootstrapping.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    index : numpy array</span>
+<span class="sd">        A collection of random *indices* that can be used to randomly</span>
+<span class="sd">        sample a dataset ``niter`` times.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">elements</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">niter</span><span class="p">,</span> <span class="n">elements</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="BCA"><a class="viewcode-back" href="../../api/bootstrap.html#wqio.bootstrap.BCA">[docs]</a><span class="k">def</span> <span class="nf">BCA</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">statfxn</span><span class="p">,</span> <span class="n">niter</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates confidence intervals around a statistic using the</span>
+<span class="sd">    Bias-Corrected and Accelerated method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array-like</span>
+<span class="sd">        Input sequence of values</span>
+<span class="sd">    statfxn : callable</span>
+<span class="sd">        A reducing function that returns a single value when passed</span>
+<span class="sd">        ``data``.</span>
+<span class="sd">    niter : int (5000)</span>
+<span class="sd">        The number of iterations for which the data will be resampled</span>
+<span class="sd">        and the statistic recomputed.</span>
+<span class="sd">    alpha : float (0.05)</span>
+<span class="sd">        The desired confidence interval subtracted from 1. For example,</span>
+<span class="sd">        if you want the 95% CI, use ``alpha = 0.05``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : float</span>
+<span class="sd">        Refined(?) estimate of the statistic.</span>
+<span class="sd">    CI : numpy array</span>
+<span class="sd">        Confidence intervals of statistic.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy</span>
+<span class="sd">    &gt;&gt;&gt; import wqio</span>
+<span class="sd">    &gt;&gt;&gt; numpy.random.seed(0)</span>
+<span class="sd">    &gt;&gt;&gt; # generate fake data and bootstrap it</span>
+<span class="sd">    &gt;&gt;&gt; data = numpy.random.normal(loc=2, scale=1.75, size=37)</span>
+<span class="sd">    &gt;&gt;&gt; wqio.bootstrap.BCA(data, numpy.mean, niter=1000, alpha=0.05)</span>
+<span class="sd">    (2.5670448684791953, array([ 1.89528037,  3.16395883]))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="n">_make_boot_index</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">niter</span><span class="p">)</span>
+    <span class="n">boot_stats</span> <span class="o">=</span> <span class="n">statfxn</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">primary_result</span> <span class="o">=</span> <span class="n">statfxn</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">boot_result</span> <span class="o">=</span> <span class="n">boot_stats</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="c1"># number of results below the premlinary estimate</span>
+    <span class="n">NumBelow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">boot_stats</span> <span class="o">&lt;</span> <span class="n">primary_result</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">NumBelow</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">NumBelow</span> <span class="o">=</span> <span class="mf">0.00001</span>
+
+    <span class="c1"># compute the acceleration</span>
+    <span class="n">a_hat</span> <span class="o">=</span> <span class="n">_acceleration</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">NumBelow</span> <span class="o">==</span> <span class="n">niter</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;All results below primary_result&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+        <span class="n">CI</span> <span class="o">=</span> <span class="n">percentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">statfxn</span><span class="p">,</span> <span class="n">niter</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="c1"># z-stats on the % of `NumBelow` and the confidence limits</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">z0</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">NumBelow</span> <span class="o">/</span> <span class="n">niter</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">ppf</span><span class="p">([</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">alpha</span><span class="p">)])</span>
+
+        <span class="c1"># refine the confidence limits (alphas)</span>
+        <span class="n">zTotal</span> <span class="o">=</span> <span class="p">(</span><span class="n">z0</span> <span class="o">+</span> <span class="p">(</span><span class="n">z0</span> <span class="o">+</span> <span class="n">z</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">a_hat</span><span class="o">*</span><span class="p">(</span><span class="n">z0</span> <span class="o">+</span> <span class="n">z</span><span class="p">)))</span>
+        <span class="n">new_alpha</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">zTotal</span><span class="p">)</span> <span class="o">*</span> <span class="mf">100.0</span>
+
+        <span class="c1"># confidence intervals from the new alphas</span>
+        <span class="n">CI</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">scoreatpercentile</span><span class="p">(</span><span class="n">boot_stats</span><span class="p">,</span> <span class="n">new_alpha</span><span class="p">)</span>
+
+        <span class="c1"># fall back to the standard percentile method if the results</span>
+        <span class="c1"># don&#39;t make any sense</span>
+        <span class="k">if</span> <span class="n">boot_result</span> <span class="o">&lt;</span> <span class="n">CI</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">CI</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">boot_result</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;secondary result outside of CI&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+            <span class="n">CI</span> <span class="o">=</span> <span class="n">percentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">statfxn</span><span class="p">,</span> <span class="n">niter</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">primary_result</span><span class="p">,</span> <span class="n">CI</span></div>
+
+
+<div class="viewcode-block" id="percentile"><a class="viewcode-back" href="../../api/bootstrap.html#wqio.bootstrap.percentile">[docs]</a><span class="k">def</span> <span class="nf">percentile</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">statfxn</span><span class="p">,</span> <span class="n">niter</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimates confidence intervals around a statistic using the</span>
+<span class="sd">    percentile method.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : array-like</span>
+<span class="sd">        Input sequence of values</span>
+<span class="sd">    statfxn : callable</span>
+<span class="sd">        A reducing function that returns a single value when passed</span>
+<span class="sd">        ``data``.</span>
+<span class="sd">    niter : int (5000)</span>
+<span class="sd">        The number of iterations for which the data will be resampled</span>
+<span class="sd">        and the statistic recomputed.</span>
+<span class="sd">    alpha : float (0.05)</span>
+<span class="sd">        The desired confidence interval subtracted from 1. For example,</span>
+<span class="sd">        if you want the 95% CI, use ``alpha = 0.05``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : float</span>
+<span class="sd">        Refined(?) estimate of the statistic.</span>
+<span class="sd">    CI : numpy array</span>
+<span class="sd">        Confidence intervals of statistic.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy</span>
+<span class="sd">    &gt;&gt;&gt; import wqio</span>
+<span class="sd">    &gt;&gt;&gt; numpy.random.seed(0)</span>
+<span class="sd">    &gt;&gt;&gt; # generate fake data and bootstrap it</span>
+<span class="sd">    &gt;&gt;&gt; data = numpy.random.normal(loc=2, scale=1.75, size=37)</span>
+<span class="sd">    &gt;&gt;&gt; wqio.bootstrap.percentile(data, numpy.median, niter=1000, alpha=0.05)</span>
+<span class="sd">    (2.583930072904967, array([ 2.20960993,  3.33181602]))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">index</span> <span class="o">=</span> <span class="n">_make_boot_index</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">niter</span><span class="p">)</span>
+    <span class="n">boot_stats</span> <span class="o">=</span> <span class="n">statfxn</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">index</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># compute the `alpha/2` and `1-alpha/2` percentiles of `boot_stats`</span>
+    <span class="n">CI</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">boot_stats</span><span class="p">,</span> <span class="p">[</span><span class="n">alpha</span><span class="o">*</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="o">-</span><span class="p">(</span><span class="n">alpha</span><span class="o">*</span><span class="mi">50</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">statfxn</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">CI</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Paul Hobson (Geosyntec Consultants).
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.4.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
